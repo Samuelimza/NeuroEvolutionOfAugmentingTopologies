@@ -12,3 +12,7 @@ class Genome():
 		for nodeKey in config['noOfOutputNodes']:
 			modifiedNodeKey = nodeKey + len(self.nodeGenes)
 			self.nodeGenes[modifiedNodeKey] = NodeGene(modifiedNodeKey, 'OUTPUT')
+		return nodeGenes()
+
+	def createConnectionGenes(self, config):
+		connectionGenes = []
