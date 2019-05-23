@@ -1,6 +1,6 @@
 class neatclass():
-	def __init__(self):
-		pass
+	def __init__(self, function):
+		self.fitnessFunction = function
 
 	def speciate():
 		pass
@@ -15,7 +15,11 @@ class neatclass():
 		pass
 
 	def train():
-		pass
+		self.fitnessFunction(giveNNs(population))
+		self.speciate(self.population)
+		parents = self.select(self.population)
+		self.population = self.crossover(parents)
+		self.mutate(self.poplation)
 
 	def giveNNs():
 		pass
