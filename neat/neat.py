@@ -25,6 +25,9 @@ class neatclass():
 		self.mutate(self.population)
 
 	def giveNNs(self, population):
+		'''
+		API method used to convert genotypes(genomes) to phenotypes(Neural Networks)
+		'''
 		neuralNetworks = []
 		for genome in population:
 			neuralNetworks.append(NeuralNetwork(genome))

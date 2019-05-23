@@ -7,6 +7,7 @@ class ConnectionGene():
 		self.innovationNumber = innovationNumber
 
 class NodeGene():
-	def __init__(nodeNumber, nodeType):
+	def __init__(nodeNumber, nodeType, activationFunction):
 		self.nodeNumber = nodeNumber
 		self.nodeType = nodeType
+		self.activationFunction = activationFunction
