@@ -1,9 +1,9 @@
 class Genome():
 	def __init__(self):
-		self.lastNodeKey = None
+		self.nextNodeKey = None
 		self.nodeGenes = createNodeGenes()
-		self.connectionGenes = connectionGenes
-		self.species = species
+		self.connectionGenes = createConnectionGenes()
+		self.species = 1
 
 	def createNodeGenes(self):
 		'''
@@ -13,13 +13,39 @@ class Genome():
 		'''
 		nodeGenes = {}
 		for nodeKey in range(config['noOfOutputNodes']):
-			self.nodeGenes[-(nodeKey + 1)] = NodeGene(-(nodeKey + 1), 'OUTPUT',
-			config['outputNodeActivation'])
+			nodeGenes[-(nodeKey + 1)] = NodeGene(
+				-(nodeKey + 1),
+				'OUTPUT',
+				config['outputNodeActivation']
+			)
 
 		for nodeKey in range(config['noOfInputNodes']):
-			self.nodeGenes[nodeKey] = NodeGene(nodeKey, 'INPUT', None)
-		self.lastNodeKey = config['noOfInputNodes'] - 1
+			nodeGenes[nodeKey] = NodeGene(nodeKey, 'INPUT', None)
+		self.nextNodeKey = config['noOfInputNodes']
 		return nodeGenes
 
 	def createConnectionGenes(self):
+		'''
+		Creates connections connecting the default input and output nodes with connection
+		key as the innovation number. Each connection supplying a particular node has it's
+		key stored in that node so the nodes supplying that particular node can be traced and
+		their value can be calculatd recursively by the neural network.
+		'''
 		connectionGenes = {}
+		connectionKey = 0
+		for outputNodeKey in range(-1, (config['noOfOutputNodes'] + 1), -1):
+			for inputNodeKey in range(config['noOfInputNodes']):
+				connectionGenes[connectionKey] = ConnectionGene(
+					inputNodeKey,
+					outputNodeKey,
+					1.0,  # Use random weight here
+					True,
+					connectionKey
+				)
+				self.nodeGenes[outputNodeKey].supplyingConnectionGenes.append(conncetionKey)
+				connectionKey += 1
+		
+		global GlobalInnovationCounter
+		if GlobalInnovationCounter = 0:
+			GlobalInnovationCounter = connectionKey
+		return connectionGenes

@@ -1,7 +1,7 @@
 class ConnectionGene():
-	def __inti__():
-		self.inNode = inNode
-		self.outNode = outNode
+	def __init__(inNodeKey, outNodeKey, weight, enabled, innovationNumber):
+		self.inNodeKey = inNodeKey
+		self.outNodeKey = outNodeKey
 		self.weight = weight
 		self.enabled = enabled
 		self.innovationNumber = innovationNumber
@@ -11,3 +11,4 @@ class NodeGene():
 		self.nodeNumber = nodeNumber
 		self.nodeType = nodeType
 		self.activationFunction = activationFunction
+		self.supplyingConnectionGenes = []

@@ -1,6 +1,10 @@
-class neatclass():
+class NEAT():
 	def __init__(self, function):
 		self.fitnessFunction = function
+		self.population = []
+		
+		for i in range(config['populationSize']):
+			self.population.append(Genome())
 
 	def speciate(self):
 		pass
@@ -18,7 +22,7 @@ class neatclass():
 		'''
 		Core Evolutionary algoroithm of neat
 		'''
-		self.fitnessFunction(giveNNs(population))
+		self.fitnessFunction(giveNNs(self.population))
 		self.speciate(self.population)
 		parents = self.select(self.population)
 		self.population = self.crossover(parents)
