@@ -16,7 +16,11 @@ class Genome():
 		'''
 		nodeGenes = {}
 		for nodeKey in range(config.noOfOutputNodes):
-			nodeGenes[-(nodeKey + 1)] = NodeGene(-(nodeKey + 1), 'OUTPUT', config.outputNodeActivation)
+			nodeGenes[-(nodeKey + 1)] = NodeGene(
+				-(nodeKey + 1),
+				'OUTPUT',
+				config.outputNodeActivation
+			)
 
 		for nodeKey in range(config.noOfInputNodes):
 			nodeGenes[nodeKey] = NodeGene(nodeKey, 'INPUT', None)
