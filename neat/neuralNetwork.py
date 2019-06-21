@@ -1,5 +1,5 @@
 class NeuralNetwork():
-	def self.__init__(self, genome):
+	def __init__(self, genome):
 		self.genome = genome
 
 	def activate(self, inputs):

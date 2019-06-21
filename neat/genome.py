@@ -1,8 +1,11 @@
+from neat import config
+from neat.gene import NodeGene, ConnectionGene
+
 class Genome():
 	def __init__(self):
 		self.nextNodeKey = None
-		self.nodeGenes = createNodeGenes()
-		self.connectionGenes = createConnectionGenes()
+		self.nodeGenes = self.createNodeGenes()
+		self.connectionGenes = self.createConnectionGenes()
 		self.species = 1
 
 	def createNodeGenes(self):
@@ -12,16 +15,12 @@ class Genome():
 		have positive keys starting from 0.
 		'''
 		nodeGenes = {}
-		for nodeKey in range(config['noOfOutputNodes']):
-			nodeGenes[-(nodeKey + 1)] = NodeGene(
-				-(nodeKey + 1),
-				'OUTPUT',
-				config['outputNodeActivation']
-			)
+		for nodeKey in range(config.noOfOutputNodes):
+			nodeGenes[-(nodeKey + 1)] = NodeGene(-(nodeKey + 1), 'OUTPUT', config.outputNodeActivation)
 
-		for nodeKey in range(config['noOfInputNodes']):
+		for nodeKey in range(config.noOfInputNodes):
 			nodeGenes[nodeKey] = NodeGene(nodeKey, 'INPUT', None)
-		self.nextNodeKey = config['noOfInputNodes']
+		self.nextNodeKey = config.noOfInputNodes
 		return nodeGenes
 
 	def createConnectionGenes(self):
@@ -33,8 +32,8 @@ class Genome():
 		'''
 		connectionGenes = {}
 		connectionKey = 0
-		for outputNodeKey in range(-1, (config['noOfOutputNodes'] + 1), -1):
-			for inputNodeKey in range(config['noOfInputNodes']):
+		for outputNodeKey in range(-1, (config.noOfOutputNodes + 1), -1):
+			for inputNodeKey in range(config.noOfInputNodes):
 				connectionGenes[connectionKey] = ConnectionGene(
 					inputNodeKey,
 					outputNodeKey,
@@ -45,7 +44,6 @@ class Genome():
 				self.nodeGenes[outputNodeKey].supplyingConnectionGenes.append(conncetionKey)
 				connectionKey += 1
 		
-		global GlobalInnovationCounter
-		if GlobalInnovationCounter = 0:
-			GlobalInnovationCounter = connectionKey
+		if config.GlobalInnovationCounter == 0:
+			config.GlobalInnovationCounter = connectionKey
 		return connectionGenes

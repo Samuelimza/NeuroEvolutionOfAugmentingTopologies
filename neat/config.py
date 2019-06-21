@@ -1,0 +1,21 @@
+# INNOVATION COUNTER
+GlobalInnovationCounter = 0
+
+#Activation function setup
+activationFunctions = {}
+
+from neat.activationFunctions import sigmoid
+activationFunctions['sigmoid'] = sigmoid
+'''
+NEAT parameters
+'''
+populationSize = 100
+
+# Structure of the starting neural network
+noOfInputNodes = 2
+noOfOutputNodes = 1
+
+# Activation function usage
+outputNodeActivation = 'sigmoid'
+hiddenNodeActivation = 'sigmoid'
+
