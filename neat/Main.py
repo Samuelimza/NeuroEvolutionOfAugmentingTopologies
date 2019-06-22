@@ -1,13 +1,12 @@
 from neat import config
+from neat.neuralNetwork import NeuralNetwork
+from neat.population import Population
 from neat.genome import Genome
 
 class NEAT():
 	def __init__(self, function):
 		self.fitnessFunction = function
-		self.population = []
-		
-		for i in range(config.populationSize):
-			self.population.append(Genome())
+		self.population = Population()
 
 	def speciate(self):
 		pass
@@ -26,16 +25,30 @@ class NEAT():
 		Core Evolutionary algoroithm of neat
 		'''
 		fitness = self.fitnessFunction(giveNNs(self.population))
-		self.speciate(self.population, fitness)
+		population = speciate(self.population, fitness)
 		parents = self.select(self.population)
 		self.population = self.crossover(parents)
 		self.mutate(self.population)
 
-	def giveNNs(self, population):
+	def convertToNeuralNetwork(self, sample):
 		'''
 		API method used to convert genotypes(genomes) to phenotypes(Neural Networks)
 		'''
-		neuralNetworks = []
-		for genome in population:
-			neuralNetworks.append(NeuralNetwork(genome))
-		return neuralNetworks
+		if isinstance(sample, Genome):
+			return NeuralNetwork(sample)
+		elif isinstance(sample, list):
+			neuralNetworks = []
+			for genome in sample:
+				neuralNetworks.append(NeuralNetwork(genome))
+			return neuralNetworks
+		elif isinstance(sample, Population):
+			neuralNetworks = []
+			for species in population.species:
+				for genome in species:
+					neuralNetworks.append(NeuralNetwork(genome))
+			return neuralNetworks
+		else:
+			raise TypeError(
+				'Argument passed must be of one of the following types: \
+				Genome, list of Genomes or Population'
+			)

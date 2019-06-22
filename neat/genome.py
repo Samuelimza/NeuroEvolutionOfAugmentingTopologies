@@ -1,3 +1,4 @@
+import random
 from neat import config
 from neat.gene import NodeGene, ConnectionGene
 
@@ -36,18 +37,30 @@ class Genome():
 		'''
 		connectionGenes = {}
 		connectionKey = 0
-		for outputNodeKey in range(-1, (config.noOfOutputNodes + 1), -1):
+		for outputNodeKey in range(-1, -(config.noOfOutputNodes + 1), -1):
 			for inputNodeKey in range(config.noOfInputNodes):
 				connectionGenes[connectionKey] = ConnectionGene(
 					inputNodeKey,
 					outputNodeKey,
-					1.0,  # Use random weight here
+					(random.random() * 2) - 1,  # Use random weight here
 					True,
 					connectionKey
 				)
-				self.nodeGenes[outputNodeKey].supplyingConnectionGenes.append(conncetionKey)
+				self.nodeGenes[outputNodeKey].supplyingConnectionGenes.append(connectionKey)
 				connectionKey += 1
 		
 		if config.GlobalInnovationCounter == 0:
 			config.GlobalInnovationCounter = connectionKey
 		return connectionGenes
+		
+	def printDetails(self):
+		print("Printing Genome")
+		print("Number of Node Genes = ", len(self.nodeGenes))
+		for outputNodeKey in range(-1, -(config.noOfOutputNodes + 1), -1):
+			print("OUTPUT NODE:", self.nodeGenes[outputNodeKey].printDetails())
+		for inputNodeKey in range(config.noOfInputNodes):
+			print("INPUT NODE:", self.nodeGenes[inputNodeKey].printDetails())
+		print("Number of Connection Genes = ", len(self.connectionGenes))
+		for connectionKey in range(len(self.connectionGenes)):
+			print("CONNECTION:", self.connectionGenes[connectionKey].printDetails())
+		print("Genome printed")

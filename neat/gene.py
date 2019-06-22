@@ -5,6 +5,9 @@ class ConnectionGene():
 		self.weight = weight
 		self.enabled = enabled
 		self.innovationNumber = innovationNumber
+		
+	def printDetails(self):
+		return "({0})>--[{1:.3f}]-->({2})".format(self.inNodeKey, self.weight, self.outNodeKey)
 
 class NodeGene():
 	def __init__(self, nodeNumber, nodeType, activationFunction):
@@ -12,3 +15,6 @@ class NodeGene():
 		self.nodeType = nodeType
 		self.activationFunction = activationFunction
 		self.supplyingConnectionGenes = []
+		
+	def printDetails(self):
+		return "({})".format(self.nodeNumber)

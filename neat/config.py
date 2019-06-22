@@ -12,8 +12,8 @@ NEAT parameters
 populationSize = 100
 
 # Structure of the starting neural network
-noOfInputNodes = 2
-noOfOutputNodes = 1
+noOfInputNodes = 4
+noOfOutputNodes = 2
 
 # Activation function usage
 outputNodeActivation = 'sigmoid'
