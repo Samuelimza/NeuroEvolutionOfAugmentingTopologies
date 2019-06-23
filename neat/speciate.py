@@ -1,12 +1,18 @@
+from neat import config
 from neat.population import Population
 
 def speciate(population, fitness):
-	newPopulation = []
+	newPopulation = Population(default = False)
+	for i in range(len(population.genomes)):
+		for j in range(len(population.speciesRepresentatives)):
+			if self.genomeDistance(population.genomes[i], population.speciesRepresentatives[j]) < config.delta:
+				population.genomes[i].species = population.speciesRepresentatives[j].species
+				break
 	
 	return newPopulation
 
 def genomeDistance(genome1, genome2):
-	c1, c2 = 1, 1
+	c1, c2 = 1, 1 # TODO: Make configurable
 	innovationNumbersGenome1 = sorted(genome1.connectionGenes.keys())
 	innovationNumbersGenome2 = sorted(genome2.connectionGenes.keys())
 	
