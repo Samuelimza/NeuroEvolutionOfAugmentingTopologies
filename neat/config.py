@@ -19,3 +19,5 @@ noOfOutputNodes = 2
 outputNodeActivation = 'sigmoid'
 hiddenNodeActivation = 'sigmoid'
 
+# Speciation parameters
+delta = 1.0

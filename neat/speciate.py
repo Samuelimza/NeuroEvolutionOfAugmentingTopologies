@@ -8,8 +8,13 @@ def speciate(population, fitness):
 			if self.genomeDistance(population.genomes[i], population.speciesRepresentatives[j]) < config.delta:
 				population.genomes[i].species = population.speciesRepresentatives[j].species
 				break
+		if population.genomes[i].species = None:
+			# Assign new species and add to speciesRepresentatives
+			pass
 	
-	return newPopulation
+	# Assign speciesRepresentatives for next generation
+	
+	return population
 
 def genomeDistance(genome1, genome2):
 	c1, c2 = 1, 1 # TODO: Make configurable
