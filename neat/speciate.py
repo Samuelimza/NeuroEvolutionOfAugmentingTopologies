@@ -2,19 +2,30 @@ from neat import config
 from neat.population import Population
 
 def speciate(population, fitness):
-	newPopulation = Population(default = False)
-	for i in range(len(population.genomes)):
-		for j in range(len(population.speciesRepresentatives)):
-			if self.genomeDistance(population.genomes[i], population.speciesRepresentatives[j]) < config.delta:
-				population.genomes[i].species = population.speciesRepresentatives[j].species
+	speciesAsLists = {}
+	
+	# Assign species to current population
+	for genome in population.genomes:
+		for specieRepresentative in population.speciesRepresentatives:
+			if genomeDistance(genome, specieRepresentative) < config.delta:
+				genome.species = speciesRepresentative.species
+				if genome.specie not in speciesAsLists.keys():
+					speciesAsLists[genome.specie] = []
+				speciesAsLists[genome.specie].append(genome)
 				break
-		if population.genomes[i].species = None:
-			# Assign new species and add to speciesRepresentatives
-			pass
+		
+		if genome.species = None:
+			population.speciesRepresentatives.append(genome)
+			genome.species = (population.species + 1)
+			population.species += 1
+			
+			speciesAsLists[genome.species] = []
+			speciesAsLists[genome.species].append(genome)
 	
-	# Assign speciesRepresentatives for next generation
-	
-	return population
+	# Assign speciesRepresentatives (from current generation) for next generation
+	population.speciesRepresentatives = []
+	for specieNumber in speciesAsLists.keys():
+		population.speciesRepresentatives.append(random.choice(speciesAsLists[specieNumber]))
 
 def genomeDistance(genome1, genome2):
 	c1, c2 = 1, 1 # TODO: Make configurable
