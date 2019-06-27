@@ -7,7 +7,7 @@ class Genome():
 		self.nextNodeKey = None
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
-		self.species = 1
+		self.species = None
 
 	def createNodeGenes(self):
 		'''

@@ -1,17 +1,15 @@
 import random
-from neat import config
-from neat.genome import Genome
+from . import config
+from .genome import Genome
 
 class Population():
 	def __init__(self, default = True):
 		self.genomes = []
-		self.specieRepresentatives = []
+		self.speciesRepresentatives = []
 		self.species = 0
 		if default:
-			initialize()
+			self.initialize()
 		
-	def initialize():
+	def initialize(self):
 		for i in range(config.populationSize):
 			self.genomes.append(Genome())
-		self.specieRepresentatives.append(random.choice(self.genomes))
-		self.species += 1

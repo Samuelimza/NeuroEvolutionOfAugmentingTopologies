@@ -1,20 +1,22 @@
-from neat import config
-from neat.population import Population
+import random
+from . import config
+from .population import Population
 
-def speciate(population, fitness):
+def speciate(population):
 	speciesAsLists = {}
 	
 	# Assign species to current population
 	for genome in population.genomes:
 		for specieRepresentative in population.speciesRepresentatives:
+			print(genomeDistance(genome, specieRepresentative))
 			if genomeDistance(genome, specieRepresentative) < config.delta:
-				genome.species = speciesRepresentative.species
-				if genome.specie not in speciesAsLists.keys():
-					speciesAsLists[genome.specie] = []
-				speciesAsLists[genome.specie].append(genome)
+				genome.species = specieRepresentative.species
+				if genome.species not in speciesAsLists.keys():
+					speciesAsLists[genome.species] = []
+				speciesAsLists[genome.species].append(genome)
 				break
 		
-		if genome.species = None:
+		if genome.species == None:
 			population.speciesRepresentatives.append(genome)
 			genome.species = (population.species + 1)
 			population.species += 1

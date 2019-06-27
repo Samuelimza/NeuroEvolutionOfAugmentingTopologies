@@ -1,3 +1,5 @@
+from . import config
+
 class NeuralNetwork():
 	def __init__(self, genome):
 		self.genome = genome
@@ -14,7 +16,7 @@ class NeuralNetwork():
 				thisValue += self.genome.connectionGenes[key].weight * value(
 					self.genome.connectionGenes[key].inNodeKey
 				)
-			return activationFunctions[self.genome.nodeGenes[nodeKey].activationFunction](thisValue)
+			return config.activationFunctions[self.genome.nodeGenes[nodeKey].activationFunction](thisValue)
 		
 		for outputNodeKey in config['noOfOutputNodes']:
 			outputs.append(self.value(-(outputNodeKey + 1)))

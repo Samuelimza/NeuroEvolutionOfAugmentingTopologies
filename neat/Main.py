@@ -1,15 +1,13 @@
-from neat import config
-from neat.neuralNetwork import NeuralNetwork
-from neat.population import Population
-from neat.genome import Genome
+from . import config
+from .neuralNetwork import NeuralNetwork
+from .population import Population
+from .speciate import speciate
+from .genome import Genome
 
 class NEAT():
 	def __init__(self, function):
 		self.fitnessFunction = function
 		self.population = Population()
-
-	def speciate(self):
-		pass
 
 	def select(self):
 		pass
@@ -25,7 +23,7 @@ class NEAT():
 		Core Evolutionary algoroithm of neat
 		'''
 		fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
-		population = speciate(self.population, fitness)
+		speciate(self.population)
 		parents = self.select(self.population)
 		self.population = self.crossover(parents)
 		self.mutate(self.population)
@@ -43,9 +41,8 @@ class NEAT():
 			return neuralNetworks
 		elif isinstance(sample, Population):
 			neuralNetworks = []
-			for species in population.species:
-				for genome in species:
-					neuralNetworks.append(NeuralNetwork(genome))
+			for genome in population.genomes:
+				neuralNetworks.append(NeuralNetwork(genome))
 			return neuralNetworks
 		else:
 			raise TypeError(

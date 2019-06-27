@@ -4,7 +4,7 @@ GlobalInnovationCounter = 0
 #Activation function setup
 activationFunctions = {}
 
-from neat.activationFunctions import sigmoid
+from .activationFunctions import sigmoid
 activationFunctions['sigmoid'] = sigmoid
 '''
 NEAT parameters
@@ -20,4 +20,4 @@ outputNodeActivation = 'sigmoid'
 hiddenNodeActivation = 'sigmoid'
 
 # Speciation parameters
-delta = 1.0
+delta = 0.5
