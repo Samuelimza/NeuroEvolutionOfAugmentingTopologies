@@ -28,6 +28,8 @@ def speciate(population):
 	population.speciesRepresentatives = []
 	for specieNumber in speciesAsLists.keys():
 		population.speciesRepresentatives.append(random.choice(speciesAsLists[specieNumber]))
+	
+	return speciesAsLists
 
 def genomeDistance(genome1, genome2):
 	c1, c2 = 1, 1 # TODO: Make configurable

@@ -23,7 +23,8 @@ class NEAT():
 		Core Evolutionary algoroithm of neat
 		'''
 		fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
-		speciate(self.population)
+		speciesAsLists = speciate(self.population)
+		reproduce(self.population, speciesAsLists, fitness)
 		parents = self.select(self.population)
 		self.population = self.crossover(parents)
 		self.mutate(self.population)
