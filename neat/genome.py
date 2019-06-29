@@ -8,6 +8,7 @@ class Genome():
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
 		self.species = None
+		self.fitness = None
 
 	def createNodeGenes(self):
 		'''
@@ -52,6 +53,10 @@ class Genome():
 		if config.GlobalInnovationCounter == 0:
 			config.GlobalInnovationCounter = connectionKey
 		return connectionGenes
+	
+	@staticmethod
+	def crossover(genome1, genome2):
+		
 		
 	def printDetails(self):
 		print("Printing Genome")
