@@ -2,6 +2,7 @@ from . import config
 from .neuralNetwork import NeuralNetwork
 from .population import Population
 from .speciate import speciate
+from .reproduce import reproduce
 from .genome import Genome
 
 class NEAT():
@@ -9,25 +10,18 @@ class NEAT():
 		self.fitnessFunction = function
 		self.population = Population()
 
-	def select(self):
-		pass
-
-	def crossover(self):
-		pass
-
-	def mutate(self):
-		pass
-
 	def train(self):
 		'''
 		Core Evolutionary algoroithm of neat
 		'''
-		fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
-		speciesAsLists = speciate(self.population)
-		reproduce(self.population, speciesAsLists, fitness)
-		parents = self.select(self.population)
-		self.population = self.crossover(parents)
-		self.mutate(self.population)
+		for i in range(config.totalGenerations):
+			print("Generation: {}".format(i))
+			print("\tGenomes: {}".format(len(self.population.genomes)))
+			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
+			speciesAsLists = speciate(self.population)
+			reproduce(self.population, speciesAsLists, fitness)
+		
+		return self.population.genomes
 
 	def convertToNeuralNetwork(self, sample):
 		'''
@@ -42,7 +36,7 @@ class NEAT():
 			return neuralNetworks
 		elif isinstance(sample, Population):
 			neuralNetworks = []
-			for genome in population.genomes:
+			for genome in sample.genomes:
 				neuralNetworks.append(NeuralNetwork(genome))
 			return neuralNetworks
 		else:
@@ -50,3 +44,4 @@ class NEAT():
 				'Argument passed must be of one of the following types: \
 				Genome, list of Genomes or Population'
 			)
+

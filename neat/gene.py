@@ -8,6 +8,10 @@ class ConnectionGene():
 		
 	def printDetails(self):
 		return "({0})>--[{1:.3f}]-->({2})".format(self.inNodeKey, self.weight, self.outNodeKey)
+	
+	@classmethod
+	def copy(cls):
+		return cls(self.inNodeKey, self.outNodeKey, self.weight, self.enabled, self.innovationNumber)
 
 class NodeGene():
 	def __init__(self, nodeNumber, nodeType, activationFunction):
@@ -18,3 +22,7 @@ class NodeGene():
 		
 	def printDetails(self):
 		return "({})".format(self.nodeNumber)
+	
+	@classmethod
+	def copy(cls):
+		return cls(self.nodeNumber, self.nodeType, self.activationFunction)

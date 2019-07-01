@@ -1,6 +1,7 @@
+from copy import copy, deepcopy
 import random
-from neat import config
-from neat.gene import NodeGene, ConnectionGene
+from . import config
+from .gene import NodeGene, ConnectionGene
 
 class Genome():
 	def __init__(self):
@@ -54,10 +55,55 @@ class Genome():
 			config.GlobalInnovationCounter = connectionKey
 		return connectionGenes
 	
-	@staticmethod
-	def crossover(genome1, genome2):
+	@classmethod
+	def crossover(cls, genome1, genome2):
+		if genome1.fitness > genome2.fitness:
+			genome = deepcopy(genome1)
+		else:
+			genome = deepcopy(genome2)
+		# Actual crossover
+		connectionKey = 0
+		while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
+			genome.connectionGenes[connectionKey].weight = random.choice(genome1.connectionGenes[connectionKey].weight, genome2.connectionGenes[connectionKey].weight)
+			genome.connectionGenes[connectionKey].enabled = random.choice(genome1.connectionGenes[connectionKey].enabled, genome2.connectionGenes[connectionKey].enabled)
+			connectionKey += 1
+		return genome
+
+	def mutate(self):
+		if random.random() < config.mutateAddConnection:
+			self.addConnection()
+		if random.random() < config.mutateAddNode:
+			self.addNode()
+		if random.random() < config.mutateChangeWeight:
+			self.changeWeight()
+		if random.random() < config.mutateEnableGene:
+			self.enableConnection()
+	
+	def addConnection():
+		while not condition:
+			inNodeKey = random.choice(self.nodeGenes.keys())
+			outNodeKey = random.choice(self.nodeGenes.keys())
+			condition1 = inNodeKey != outNodeKey
+			'''
+			Conditions here to make sure that forward propagating connections are evolved only
+			TODO: Add additional condition that checks if the connection doesn't already exist
+			TODO: Implement way to check this mutation against possibly same mutations later in this generation
+			'''
+			condition2 = (self.nodeGenes[inNodeKey].nodeType == 'INPUT') or (self.nodeGenes[inNodeKey].nodeType == 'HIDDEN')
+			condition3 = (self.nodeGenes[outNodeKey].nodeType == 'HIDDEN') or (self.nodeGenes[outNodeKey].nodeType == 'OUTPUT')
+			condition = condition1 and condition2 and condition3
 		
-		
+		self.connectionGenes[config.globalInnovationNumber] = ConnectionGene(
+			inNodeKey,
+			outNodeKey,
+			(2 * random()) - 1,
+			True,
+			config.globalInnovationNumber
+		)
+		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.globalInnovationNumber)
+		config.globalInnovationNumber += 1
+	
+	# Do something for this ugly visualisation function please
 	def printDetails(self):
 		print("Printing Genome")
 		print("Number of Node Genes = ", len(self.nodeGenes))

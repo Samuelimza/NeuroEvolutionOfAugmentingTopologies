@@ -8,7 +8,6 @@ def speciate(population):
 	# Assign species to current population
 	for genome in population.genomes:
 		for specieRepresentative in population.speciesRepresentatives:
-			print(genomeDistance(genome, specieRepresentative))
 			if genomeDistance(genome, specieRepresentative) < config.delta:
 				genome.species = specieRepresentative.species
 				if genome.species not in speciesAsLists.keys():
