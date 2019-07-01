@@ -70,6 +70,9 @@ class Genome():
 		return genome
 
 	def mutate(self):
+		'''
+		TODO: Add different mutation controls such as: only one structural mutation or all
+		'''
 		if random.random() < config.mutateAddConnection:
 			self.addConnection()
 		if random.random() < config.mutateAddNode:
@@ -102,6 +105,25 @@ class Genome():
 		)
 		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.globalInnovationNumber)
 		config.globalInnovationNumber += 1
+	
+	def mutateAddNode():
+		connection = random.choice(self.connectionGenes)
+		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
+		self.nextNodeKey += 1
+		connection0 = ConnectionGene(connection.inNodeKey, newNode.nodeNumber, connection.weight, True, config.globalInnovationNumber)
+		config.globalInnovationNumber += 1
+		connection1 = ConnectionGene(newNode.nodeNumber, connection.outNodeKey, 1.0, True, config.globalInnovationNumber)
+		config.globalInnovationNumber += 1
+		newNode.supplyingConnectionGenes.append(connection0.innovationNumber)
+		self.nodeGenes[connection.outNodeKey].supplyingConnectionGenes.append(connection1.innovationNumber)
+		# TODO: Remove 'connection' from the supplyingGenes of connection.outNodeKey
+		
+		# Finally adding genes to the genome
+		self.nodeGenes[newNode.nodeNumber] = newNode
+		self.connectionGenes[connection0.innovationNumber] = connection0
+		self.connectionGenes[connection1.innovationNumber] = connection1
+		
+		connection.enabled = False
 	
 	# Do something for this ugly visualisation function please
 	def printDetails(self):
