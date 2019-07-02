@@ -16,11 +16,11 @@ def fitnessFunc(neuralNetworks):
 	return fitness
 
 neatHello = neat.Main.NEAT(fitnessFunc)
-# genomesAfterTraining = neatHello.train()
+genomesAfterTraining = neatHello.train()
 
-genome = Genome()
-for connectionKey in genome.connectionGenes.keys():
-	print('Index : {}, Innov No.: {}'.format(connectionKey, genome.connectionGenes[connectionKey].innovationNumber))
+#genome = Genome()
+#for connectionKey in genome.connectionGenes.keys():
+#	print('Index : {}, Innov No.: {}'.format(connectionKey, genome.connectionGenes[connectionKey].innovationNumber))
 
 #for genome in genomesAfterTraining:
 #	genome.printDetails()

@@ -22,6 +22,8 @@ def reproduce(population, speciesAsLists, fitness):
 		totalFitness += fitness[counter]
 		counter += 1
 	
+	# TODO: Add features such as elitism etc.
+	
 	newGenomes = []
 	for specie in speciesAsLists.keys():
 		# Sort genomes of a specie based on their fitness

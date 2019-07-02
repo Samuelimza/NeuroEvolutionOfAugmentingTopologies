@@ -62,17 +62,19 @@ class Genome():
 		else:
 			genome = deepcopy(genome2)
 		# Actual crossover
+		# Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
 		connectionKey = 0
-		while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
-			genome.connectionGenes[connectionKey].weight = random.choice(genome1.connectionGenes[connectionKey].weight, genome2.connectionGenes[connectionKey].weight)
-			genome.connectionGenes[connectionKey].enabled = random.choice(genome1.connectionGenes[connectionKey].enabled, genome2.connectionGenes[connectionKey].enabled)
-			connectionKey += 1
+		try:
+			while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
+				genome.connectionGenes[connectionKey].weight = random.choice([genome1.connectionGenes[connectionKey].weight, genome2.connectionGenes[connectionKey].weight])
+				genome.connectionGenes[connectionKey].enabled = random.choice([genome1.connectionGenes[connectionKey].enabled, genome2.connectionGenes[connectionKey].enabled])
+				connectionKey += 1		
+		except KeyError:
+			pass
 		return genome
 
 	def mutate(self):
-		'''
-		TODO: Add different mutation controls such as: only one structural mutation or all
-		'''
+		# TODO: Add different mutation controls such as: only one structural mutation or all
 		if random.random() < config.mutateAddConnection:
 			self.addConnection()
 		if random.random() < config.mutateAddNode:
@@ -80,12 +82,14 @@ class Genome():
 		if random.random() < config.mutateChangeWeight:
 			self.changeWeight()
 		if random.random() < config.mutateEnableGene:
-			self.enableConnection()
+			# self.enableConnection()
+			pass
 	
-	def addConnection():
+	def addConnection(self):
+		condition = False
 		while not condition:
-			inNodeKey = random.choice(self.nodeGenes.keys())
-			outNodeKey = random.choice(self.nodeGenes.keys())
+			inNodeKey = random.choice([k for k in self.nodeGenes.keys()])
+			outNodeKey = random.choice([k for k in self.nodeGenes.keys()])
 			condition1 = inNodeKey != outNodeKey
 			'''
 			Conditions here to make sure that forward propagating connections are evolved only
@@ -96,34 +100,51 @@ class Genome():
 			condition3 = (self.nodeGenes[outNodeKey].nodeType == 'HIDDEN') or (self.nodeGenes[outNodeKey].nodeType == 'OUTPUT')
 			condition = condition1 and condition2 and condition3
 		
-		self.connectionGenes[config.globalInnovationNumber] = ConnectionGene(
+		self.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
 			inNodeKey,
 			outNodeKey,
-			(2 * random()) - 1,
+			(2 * random.random()) - 1,
 			True,
-			config.globalInnovationNumber
+			config.GlobalInnovationCounter
 		)
-		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.globalInnovationNumber)
-		config.globalInnovationNumber += 1
+		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.GlobalInnovationCounter)
+		config.GlobalInnovationCounter += 1
 	
-	def mutateAddNode():
-		connection = random.choice(self.connectionGenes)
+	def addNode(self):
+		connectionKey = random.choice([k for k in self.connectionGenes])
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
-		connection0 = ConnectionGene(connection.inNodeKey, newNode.nodeNumber, connection.weight, True, config.globalInnovationNumber)
-		config.globalInnovationNumber += 1
-		connection1 = ConnectionGene(newNode.nodeNumber, connection.outNodeKey, 1.0, True, config.globalInnovationNumber)
-		config.globalInnovationNumber += 1
+		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber, self.connectionGenes[connectionKey].weight, True, config.GlobalInnovationCounter)
+		config.GlobalInnovationCounter += 1
+		connection1 = ConnectionGene(newNode.nodeNumber, self.connectionGenes[connectionKey].outNodeKey, 1.0, True, config.GlobalInnovationCounter)
+		config.GlobalInnovationCounter += 1
+		
+		# Add new connections to the respective node for tracking in supplyingConnectionGenes
 		newNode.supplyingConnectionGenes.append(connection0.innovationNumber)
-		self.nodeGenes[connection.outNodeKey].supplyingConnectionGenes.append(connection1.innovationNumber)
-		# TODO: Remove 'connection' from the supplyingGenes of connection.outNodeKey
+		self.nodeGenes[self.connectionGenes[connectionKey].outNodeKey].supplyingConnectionGenes.append(connection1.innovationNumber)
+		
+		# NOTE: Not necessay, just ignore disabled genes in the neural network (Remove 'connection' from the supplyingGenes of connection.outNodeKey)
+		self.connectionGenes[connectionKey].enabled = False
 		
 		# Finally adding genes to the genome
 		self.nodeGenes[newNode.nodeNumber] = newNode
 		self.connectionGenes[connection0.innovationNumber] = connection0
 		self.connectionGenes[connection1.innovationNumber] = connection1
+	
+	def changeWeight(self):
+		connectionKey = random.choice([k for k in self.connectionGenes])
+		nudge = random.random() - 0.5
+		self.connectionGenes[connectionKey].weight += nudge
+	
+	def enableConnection(self):
+		disabledConnectionKey = None
+		condition = True
+		# TODO: Randomize the connection chosen not just the first found
+		while condition:
+			disabledConnectionKey = random.choice([k for k in self.connectionGenes])
+			condition = self.connectionGenes[disabledConnectionKey].enabled
 		
-		connection.enabled = False
+		self.connectionGenes[disabledConnectionKey].enabled = True
 	
 	# Do something for this ugly visualisation function please
 	def printDetails(self):
