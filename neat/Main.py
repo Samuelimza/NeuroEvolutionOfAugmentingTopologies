@@ -5,28 +5,35 @@ from .speciate import speciate
 from .reproduce import reproduce
 from .genome import Genome
 
-class NEAT():
+
+class NEAT:
 	def __init__(self, function):
 		self.fitnessFunction = function
 		self.population = Population()
 
 	def train(self):
-		'''
-		Core Evolutionary algoroithm of neat
-		'''
+		# Core Evolutionary algorithm of neat
 		for i in range(config.totalGenerations):
+			print('#############################################')
 			print("Generation: {}".format(i))
 			print("\tGenomes: {}".format(len(self.population.genomes)))
 			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
+			maxFitness = 0  # max(*fitness)
+			index = None
+			for i in range(len(self.population.genomes)):
+				if fitness[i] > maxFitness:
+					maxFitness = fitness[i]
+					index = i
+			print('\tMax fitness: ', maxFitness, ', Of genome: ', index)
+			self.population.genomes[i].printDetails()
 			speciesAsLists = speciate(self.population)
 			reproduce(self.population, speciesAsLists, fitness)
-		
+			print('#############################################')
+
 		return self.population.genomes
 
 	def convertToNeuralNetwork(self, sample):
-		'''
-		API method used to convert genotypes(genomes) to phenotypes(Neural Networks)
-		'''
+		# API method used to convert genotypes(genomes) to phenotypes(Neural Networks)
 		if isinstance(sample, Genome):
 			return NeuralNetwork(sample)
 		elif isinstance(sample, list):
@@ -44,4 +51,3 @@ class NEAT():
 				'Argument passed must be of one of the following types: \
 				Genome, list of Genomes or Population'
 			)
-

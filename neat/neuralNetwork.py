@@ -13,11 +13,11 @@ class NeuralNetwork():
 				return inputs[self.genome.nodeGenes[nodeKey].nodeNumber]
 			thisValue = 0
 			for key in self.genome.nodeGenes[nodeKey].supplyingConnectionGenes:
-				thisValue += self.genome.connectionGenes[key].weight * value(
-					self.genome.connectionGenes[key].inNodeKey
-				)
+				if self.genome.connectionGenes[key].enabled:
+					thisValue += self.genome.connectionGenes[key].weight * value(self.genome.connectionGenes[key].inNodeKey)
+			
 			return config.activationFunctions[self.genome.nodeGenes[nodeKey].activationFunction](thisValue)
 		
-		for outputNodeKey in config['noOfOutputNodes']:
-			outputs.append(self.value(-(outputNodeKey + 1)))
+		for outputNodeKey in range(config.noOfOutputNodes):
+			outputs.append(value(-(outputNodeKey + 1)))
 		return outputs

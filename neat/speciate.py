@@ -31,7 +31,7 @@ def speciate(population):
 	return speciesAsLists
 
 def genomeDistance(genome1, genome2):
-	c1, c2 = 1, 1 # TODO: Make configurable
+	c1, c2 = 1, 0.5 # TODO: Make configurable
 	innovationNumbersGenome1 = sorted(genome1.connectionGenes.keys())
 	innovationNumbersGenome2 = sorted(genome2.connectionGenes.keys())
 	
@@ -59,10 +59,19 @@ def genomeDistance(genome1, genome2):
 		# Calculate the average weight difference of matching genes
 		if len(innovationNumbersGenome1) - i != len(innovationNumbersGenome2) - j:
 			raise ValueError('Matching genes are not same in both genomes!')
-		noOfMatchingGenes = (len(innovationNumbersGenome1) - i) + 1
-		summation = 0
-		for counter in range(noOfMatchingGenes):
-			summation += abs(genome1.connectionGenes[counter].weight - genome2.connectionGenes[counter].weight)
-		averageWeightDifference = summation / noOfMatchingGenes
+		
+		try:
+			summation = 0
+			innovNumber = 0
+			while genome1.connectionGenes[innovNumber].innovationNumber == genome2.connectionGenes[innovNumber].innovationNumber:
+				summation += abs(genome1.connectionGenes[innovNumber].weight - genome2.connectionGenes[innovNumber].weight)
+				innovNumber += 1
+		except KeyError:
+			pass
+		# noOfMatchingGenes = (len(innovationNumbersGenome1) - i) + 1
+		# summation = 0
+		# for counter in range(noOfMatchingGenes):
+		#	summation += abs(genome1.connectionGenes[counter].weight - genome2.connectionGenes[counter].weight)
+		averageWeightDifference = summation / (innovNumber - 1)
 	distance = c1 * disjointAndExcessGenes + c2 * averageWeightDifference
 	return distance

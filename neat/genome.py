@@ -61,6 +61,8 @@ class Genome():
 			genome = deepcopy(genome1)
 		else:
 			genome = deepcopy(genome2)
+		genome.fitness = None
+		genome.species = None
 		# Actual crossover
 		# Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
 		connectionKey = 0
@@ -111,6 +113,7 @@ class Genome():
 		config.GlobalInnovationCounter += 1
 	
 	def addNode(self):
+		# TODO: Check if choden connection is not disabled
 		connectionKey = random.choice([k for k in self.connectionGenes])
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
@@ -151,10 +154,22 @@ class Genome():
 		print("Printing Genome")
 		print("Number of Node Genes = ", len(self.nodeGenes))
 		for outputNodeKey in range(-1, -(config.noOfOutputNodes + 1), -1):
-			print("OUTPUT NODE:", self.nodeGenes[outputNodeKey].printDetails())
+			print("\tOUTPUT NODE:", self.nodeGenes[outputNodeKey].printDetails())
+		counter = 0
 		for inputNodeKey in range(config.noOfInputNodes):
-			print("INPUT NODE:", self.nodeGenes[inputNodeKey].printDetails())
+			print("\tINPUT NODE:", self.nodeGenes[inputNodeKey].printDetails())
+			counter += 1
+		
+		# Weird way to print hidden nodes TODO: please fix
+		try:
+			while True:
+				print("\tHIDDEN NODE:", self.nodeGenes[counter].printDetails())
+				counter += 1
+		except KeyError:
+			pass
+		
 		print("Number of Connection Genes = ", len(self.connectionGenes))
-		for connectionKey in range(len(self.connectionGenes)):
-			print("CONNECTION:", self.connectionGenes[connectionKey].printDetails())
+		for connectionKey in self.connectionGenes:
+			if self.connectionGenes[connectionKey].enabled:
+				print("\t", connectionKey, "CONNECTION:", self.connectionGenes[connectionKey].printDetails())
 		print("Genome printed")

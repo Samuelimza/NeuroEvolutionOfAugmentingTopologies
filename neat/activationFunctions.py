@@ -1,2 +1,4 @@
+import math
+
 def sigmoid(x):
-	1 / (1 + math.exp(-x))
+	return 1 / (1 + math.exp(-x))

@@ -2,13 +2,17 @@ import math, random
 from .genome import Genome
 from . import config
 
+
 def reproduce(population, speciesAsLists, fitness):
-	'''
-	Very confusing piece requires excessive commenting
-	'''
+	# Very confusing piece requires excessive commenting
 	sumPerSpecies = {}
 	totalFitness = 0
-	
+
+	# Debug
+	for specie in speciesAsLists:
+		print('Species: {}, Length: {}'.format(specie, len(speciesAsLists[specie])))
+	# Debug
+
 	counter = 0
 	for genome in population.genomes:
 		# Adjust fitness based fitness sharing
@@ -21,13 +25,13 @@ def reproduce(population, speciesAsLists, fitness):
 		# Also simultaneously increase total fitness of all individuals combined
 		totalFitness += fitness[counter]
 		counter += 1
-	
+
 	# TODO: Add features such as elitism etc.
-	
+
 	newGenomes = []
 	for specie in speciesAsLists.keys():
 		# Sort genomes of a specie based on their fitness
-		sorted(speciesAsLists[specie], key = lambda genome: genome.fitness, reverse = True)
+		sorted(speciesAsLists[specie], key=lambda genome: genome.fitness, reverse=True)
 		# Calculate number of low fitness genomes to be deleted
 		genomesDeleted = math.ceil((1 - config.deletionFactor) * len(speciesAsLists[specie]))
 		# Delete low fitness genomes
@@ -40,6 +44,7 @@ def reproduce(population, speciesAsLists, fitness):
 			newGenome.mutate()
 			newGenomes.append(newGenome)
 	population.genomes = newGenomes
+
 
 def select(genomes):
 	return random.choice(genomes)
