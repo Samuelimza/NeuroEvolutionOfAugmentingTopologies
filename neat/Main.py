@@ -25,7 +25,12 @@ class NEAT:
 					maxFitness = fitness[i]
 					index = i
 			print('\tMax fitness: ', maxFitness, ', Of genome: ', index)
-			self.population.genomes[i].printDetails()
+			counter = 0
+			for genome in self.population.genomes:
+				if counter == index:
+					print('MAX FIT GENOME!!!!!')
+				genome.printDetails()
+				counter += 1
 			speciesAsLists = speciate(self.population)
 			reproduce(self.population, speciesAsLists, fitness)
 			print('#############################################')

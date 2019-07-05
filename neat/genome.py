@@ -88,6 +88,7 @@ class Genome():
 			pass
 	
 	def addConnection(self):
+		# TODO: Check for cyclic connections (IMPORTANT)
 		condition = False
 		while not condition:
 			inNodeKey = random.choice([k for k in self.nodeGenes.keys()])
@@ -113,8 +114,10 @@ class Genome():
 		config.GlobalInnovationCounter += 1
 	
 	def addNode(self):
-		# TODO: Check if choden connection is not disabled
-		connectionKey = random.choice([k for k in self.connectionGenes])
+		condition0 = False
+		while not condition0:
+			connectionKey = random.choice([k for k in self.connectionGenes])
+			condition0 = self.connectionGenes[connectionKey].enabled
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
 		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber, self.connectionGenes[connectionKey].weight, True, config.GlobalInnovationCounter)
@@ -125,8 +128,7 @@ class Genome():
 		# Add new connections to the respective node for tracking in supplyingConnectionGenes
 		newNode.supplyingConnectionGenes.append(connection0.innovationNumber)
 		self.nodeGenes[self.connectionGenes[connectionKey].outNodeKey].supplyingConnectionGenes.append(connection1.innovationNumber)
-		
-		# NOTE: Not necessay, just ignore disabled genes in the neural network (Remove 'connection' from the supplyingGenes of connection.outNodeKey)
+
 		self.connectionGenes[connectionKey].enabled = False
 		
 		# Finally adding genes to the genome
@@ -135,9 +137,10 @@ class Genome():
 		self.connectionGenes[connection1.innovationNumber] = connection1
 	
 	def changeWeight(self):
-		connectionKey = random.choice([k for k in self.connectionGenes])
-		nudge = random.random() - 0.5
-		self.connectionGenes[connectionKey].weight += nudge
+		for connection in self.connectionGenes:
+			if self.connectionGenes[connection].enabled:
+				nudge = random.random() - 0.5
+				self.connectionGenes[connection].weight += nudge
 	
 	def enableConnection(self):
 		disabledConnectionKey = None
