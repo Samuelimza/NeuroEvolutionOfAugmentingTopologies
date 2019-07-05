@@ -9,8 +9,8 @@ activationFunctions['sigmoid'] = sigmoid
 '''
 NEAT parameters
 '''
-populationSize = 2
-totalGenerations = 10
+populationSize = 100
+totalGenerations = 100
 
 # Percenntage of low scorings individuals to be deleted
 deletionFactor = 0.3

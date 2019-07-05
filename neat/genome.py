@@ -88,17 +88,17 @@ class Genome():
 			pass
 	
 	def addConnection(self):
-		# TODO: Check for cyclic connections (IMPORTANT)
+		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		condition = False
 		while not condition:
 			inNodeKey = random.choice([k for k in self.nodeGenes.keys()])
 			outNodeKey = random.choice([k for k in self.nodeGenes.keys()])
 			condition1 = inNodeKey != outNodeKey
-			'''
-			Conditions here to make sure that forward propagating connections are evolved only
-			TODO: Add additional condition that checks if the connection doesn't already exist
-			TODO: Implement way to check this mutation against possibly same mutations later in this generation
-			'''
+
+			# TODO: (IMPORTANT) Check for cyclic connections
+			# TODO: (IMPORTANT) Add additional condition that checks if the connection doesn't already exist
+
+			# Conditions here to make sure that forward propagating connections are evolved only
 			condition2 = (self.nodeGenes[inNodeKey].nodeType == 'INPUT') or (self.nodeGenes[inNodeKey].nodeType == 'HIDDEN')
 			condition3 = (self.nodeGenes[outNodeKey].nodeType == 'HIDDEN') or (self.nodeGenes[outNodeKey].nodeType == 'OUTPUT')
 			condition = condition1 and condition2 and condition3
@@ -114,6 +114,7 @@ class Genome():
 		config.GlobalInnovationCounter += 1
 	
 	def addNode(self):
+		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		condition0 = False
 		while not condition0:
 			connectionKey = random.choice([k for k in self.connectionGenes])
