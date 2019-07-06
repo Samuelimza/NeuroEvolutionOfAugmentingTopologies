@@ -29,9 +29,11 @@ def reproduce(population, speciesAsLists, fitness):
 	# TODO: Add features such as elitism etc.
 
 	newGenomes = []
+	connectionMutations = []
+	nodeMutations = []
 	for specie in speciesAsLists.keys():
 		# Sort genomes of a specie based on their fitness
-		sorted(speciesAsLists[specie], key=lambda genome: genome.fitness, reverse=True)
+		sorted(speciesAsLists[specie], key=lambda genomeE: genomeE.fitness, reverse=True)
 		# Calculate number of low fitness genomes to be deleted
 		genomesDeleted = math.ceil((1 - config.deletionFactor) * len(speciesAsLists[specie]))
 		# Delete low fitness genomes
@@ -41,7 +43,7 @@ def reproduce(population, speciesAsLists, fitness):
 		# Actually create offsprings
 		for i in range(offspringCount):
 			newGenome = Genome.crossover(select(speciesAsLists[specie]), select(speciesAsLists[specie]))
-			newGenome.mutate()
+			newGenome.mutate(connectionMutations, nodeMutations)
 			newGenomes.append(newGenome)
 	population.genomes = newGenomes
 

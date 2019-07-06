@@ -2,6 +2,7 @@ from copy import copy, deepcopy
 import random
 from . import config
 from .gene import NodeGene, ConnectionGene
+from .utilityClasses import Mutation
 
 
 class Genome:
@@ -58,6 +59,16 @@ class Genome:
 		self.fullyConnected = True
 		return connectionGenes
 
+	def addConnection(self, inNodeKey, outNodeKey, weight, enabled, innovationNumber):
+		self.connectionGenes[innovationNumber] = ConnectionGene(
+			inNodeKey,
+			outNodeKey,
+			weight,
+			enabled,
+			innovationNumber
+		)
+		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(innovationNumber)
+
 	@classmethod
 	def crossover(cls, genome1, genome2):
 		if genome1.fitness > genome2.fitness:
@@ -80,19 +91,19 @@ class Genome:
 			pass
 		return genome
 
-	def mutate(self):
+	def mutate(self, connectionMutations, nodeMutations):
 		# TODO: Add different mutation controls such as: only one structural mutation or all
 		if random.random() < config.mutateAddConnection and not self.fullyConnected:
-			self.addConnection()
+			self.mutateAddConnection(connectionMutations)
 		if random.random() < config.mutateAddNode:
-			self.addNode()
+			self.mutateAddNode(nodeMutations)
 		if random.random() < config.mutateChangeWeight:
-			self.changeWeight()
+			self.mutateChangeWeight()
 		if random.random() < config.mutateEnableGene:
-			# self.enableConnection()
+			# self.mutateEnableConnection()
 			pass
 
-	def addConnection(self):
+	def mutateAddConnection(self, connectionMutations):
 		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		inKeys = [k for k in self.nodeGenes.keys()]
 		outKeys = inKeys
@@ -110,24 +121,32 @@ class Genome:
 						break
 
 				if valid and not cyclic and not alreadyExists:
-					self.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
+					innovationNumber = None
+					for mutation in connectionMutations:
+						if inNodeKey == mutation.inNodeKey and outNodeKey == mutation.outNodeKey:
+							innovationNumber = mutation.innovationNumber
+					if innovationNumber is None:
+						innovationNumber = config.GlobalInnovationCounter
+						config.GlobalInnovationCounter += 1
+						connectionMutations.append(Mutation(inNodeKey = inNodeKey, outNodeKey = outNodeKey, innovationNumber = innovationNumber))
+					self.addConnection(
 						inNodeKey,
 						outNodeKey,
-						(2 * random.random()) - 1,
+						(random.random() * 2) - 1,
 						True,
-						config.GlobalInnovationCounter
+						innovationNumber
 					)
-					self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.GlobalInnovationCounter)
-					config.GlobalInnovationCounter += 1
 					return
 		self.fullyConnected = True
 
-	def addNode(self):
+	def mutateAddNode(self, nodeMutations):
 		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
-		condition0 = False
-		while not condition0:
-			connectionKey = random.choice([k for k in self.connectionGenes])
-			condition0 = self.connectionGenes[connectionKey].enabled
+		connectionKey = None
+		keys = [k for k in self.connectionGenes]
+		random.shuffle(keys)
+		for key in keys:
+			if self.connectionGenes[key].enabled:
+				connectionKey = key
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
 		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber,
@@ -149,13 +168,13 @@ class Genome:
 		self.connectionGenes[connection0.innovationNumber] = connection0
 		self.connectionGenes[connection1.innovationNumber] = connection1
 
-	def changeWeight(self):
+	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
 			if self.connectionGenes[connection].enabled:
 				nudge = random.random() - 0.5
 				self.connectionGenes[connection].weight += nudge
 
-	def enableConnection(self):
+	def mutateEnableConnection(self):
 		disabledConnectionKey = None
 		condition = True
 		# TODO: Randomize the connection chosen not just the first found
