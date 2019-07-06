@@ -12,7 +12,7 @@ NEAT parameters
 populationSize = 100
 totalGenerations = 100
 
-# Percenntage of low scorings individuals to be deleted
+# Percentage of low scoring individuals to be deleted
 deletionFactor = 0.3
 
 # Mutation rates

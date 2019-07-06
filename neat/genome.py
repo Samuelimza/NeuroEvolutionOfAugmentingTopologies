@@ -3,13 +3,15 @@ import random
 from . import config
 from .gene import NodeGene, ConnectionGene
 
-class Genome():
+
+class Genome:
 	def __init__(self):
 		self.nextNodeKey = None
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
 		self.species = None
 		self.fitness = None
+		self.fullyConnected = False
 
 	def createNodeGenes(self):
 		'''
@@ -50,11 +52,12 @@ class Genome():
 				)
 				self.nodeGenes[outputNodeKey].supplyingConnectionGenes.append(connectionKey)
 				connectionKey += 1
-		
+
 		if config.GlobalInnovationCounter == 0:
 			config.GlobalInnovationCounter = connectionKey
+		self.fullyConnected = True
 		return connectionGenes
-	
+
 	@classmethod
 	def crossover(cls, genome1, genome2):
 		if genome1.fitness > genome2.fitness:
@@ -64,20 +67,22 @@ class Genome():
 		genome.fitness = None
 		genome.species = None
 		# Actual crossover
-		# Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
+		# TODO: Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
 		connectionKey = 0
 		try:
 			while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
-				genome.connectionGenes[connectionKey].weight = random.choice([genome1.connectionGenes[connectionKey].weight, genome2.connectionGenes[connectionKey].weight])
-				genome.connectionGenes[connectionKey].enabled = random.choice([genome1.connectionGenes[connectionKey].enabled, genome2.connectionGenes[connectionKey].enabled])
-				connectionKey += 1		
+				genome.connectionGenes[connectionKey].weight = random.choice(
+					[genome1.connectionGenes[connectionKey].weight, genome2.connectionGenes[connectionKey].weight])
+				genome.connectionGenes[connectionKey].enabled = random.choice(
+					[genome1.connectionGenes[connectionKey].enabled, genome2.connectionGenes[connectionKey].enabled])
+				connectionKey += 1
 		except KeyError:
 			pass
 		return genome
 
 	def mutate(self):
 		# TODO: Add different mutation controls such as: only one structural mutation or all
-		if random.random() < config.mutateAddConnection:
+		if random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.addConnection()
 		if random.random() < config.mutateAddNode:
 			self.addNode()
@@ -86,33 +91,37 @@ class Genome():
 		if random.random() < config.mutateEnableGene:
 			# self.enableConnection()
 			pass
-	
+
 	def addConnection(self):
 		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
-		condition = False
-		while not condition:
-			inNodeKey = random.choice([k for k in self.nodeGenes.keys()])
-			outNodeKey = random.choice([k for k in self.nodeGenes.keys()])
-			condition1 = inNodeKey != outNodeKey
+		inKeys = [k for k in self.nodeGenes.keys()]
+		outKeys = inKeys
+		random.shuffle(inKeys)
+		random.shuffle(outKeys)
+		for inNodeKey in inKeys:
+			for outNodeKey in outKeys:
+				# Conditions here to make sure that forward propagating connections are evolved only
+				valid = inNodeKey != outNodeKey and self.nodeGenes[inNodeKey].nodeType != 'OUTPUT' and self.nodeGenes[outNodeKey].nodeType != 'INPUT'
+				cyclic = self.isCyclic(inNodeKey, outNodeKey)
+				alreadyExists = False
+				for connection in self.connectionGenes:
+					if self.connectionGenes[connection].inNodeKey == inNodeKey and self.connectionGenes[connection].outNodeKey == outNodeKey:
+						alreadyExists = True
+						break
 
-			# TODO: (IMPORTANT) Check for cyclic connections
-			# TODO: (IMPORTANT) Add additional condition that checks if the connection doesn't already exist
+				if valid and not cyclic and not alreadyExists:
+					self.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
+						inNodeKey,
+						outNodeKey,
+						(2 * random.random()) - 1,
+						True,
+						config.GlobalInnovationCounter
+					)
+					self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.GlobalInnovationCounter)
+					config.GlobalInnovationCounter += 1
+					return
+		self.fullyConnected = True
 
-			# Conditions here to make sure that forward propagating connections are evolved only
-			condition2 = (self.nodeGenes[inNodeKey].nodeType == 'INPUT') or (self.nodeGenes[inNodeKey].nodeType == 'HIDDEN')
-			condition3 = (self.nodeGenes[outNodeKey].nodeType == 'HIDDEN') or (self.nodeGenes[outNodeKey].nodeType == 'OUTPUT')
-			condition = condition1 and condition2 and condition3
-		
-		self.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
-			inNodeKey,
-			outNodeKey,
-			(2 * random.random()) - 1,
-			True,
-			config.GlobalInnovationCounter
-		)
-		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.GlobalInnovationCounter)
-		config.GlobalInnovationCounter += 1
-	
 	def addNode(self):
 		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		condition0 = False
@@ -121,28 +130,31 @@ class Genome():
 			condition0 = self.connectionGenes[connectionKey].enabled
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
-		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber, self.connectionGenes[connectionKey].weight, True, config.GlobalInnovationCounter)
+		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber,
+									 self.connectionGenes[connectionKey].weight, True, config.GlobalInnovationCounter)
 		config.GlobalInnovationCounter += 1
-		connection1 = ConnectionGene(newNode.nodeNumber, self.connectionGenes[connectionKey].outNodeKey, 1.0, True, config.GlobalInnovationCounter)
+		connection1 = ConnectionGene(newNode.nodeNumber, self.connectionGenes[connectionKey].outNodeKey, 1.0, True,
+									 config.GlobalInnovationCounter)
 		config.GlobalInnovationCounter += 1
-		
+
 		# Add new connections to the respective node for tracking in supplyingConnectionGenes
 		newNode.supplyingConnectionGenes.append(connection0.innovationNumber)
-		self.nodeGenes[self.connectionGenes[connectionKey].outNodeKey].supplyingConnectionGenes.append(connection1.innovationNumber)
+		self.nodeGenes[self.connectionGenes[connectionKey].outNodeKey].supplyingConnectionGenes.append(
+			connection1.innovationNumber)
 
 		self.connectionGenes[connectionKey].enabled = False
-		
+
 		# Finally adding genes to the genome
 		self.nodeGenes[newNode.nodeNumber] = newNode
 		self.connectionGenes[connection0.innovationNumber] = connection0
 		self.connectionGenes[connection1.innovationNumber] = connection1
-	
+
 	def changeWeight(self):
 		for connection in self.connectionGenes:
 			if self.connectionGenes[connection].enabled:
 				nudge = random.random() - 0.5
 				self.connectionGenes[connection].weight += nudge
-	
+
 	def enableConnection(self):
 		disabledConnectionKey = None
 		condition = True
@@ -150,9 +162,35 @@ class Genome():
 		while condition:
 			disabledConnectionKey = random.choice([k for k in self.connectionGenes])
 			condition = self.connectionGenes[disabledConnectionKey].enabled
-		
+
 		self.connectionGenes[disabledConnectionKey].enabled = True
-	
+
+	def isCyclic(self, inNodeKey, outNodeKey):
+		this = deepcopy(self)
+		this.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
+			inNodeKey,
+			outNodeKey,
+			1,
+			True,
+			config.GlobalInnovationCounter
+		)
+		this.nodeGenes[outNodeKey].supplyingConnectionGenes.append(config.GlobalInnovationCounter)
+
+		def dfs(node, stack):
+			if this.nodeGenes[node].nodeType == 'INPUT':
+				return False
+			if node in stack:
+				return True
+			stack.append(node)
+			for connection in this.nodeGenes[node].supplyingConnectionGenes:
+				if dfs(this.connectionGenes[connection].inNodeKey, stack):
+					return True
+			stack.pop()
+			return False
+		realStack = []
+		# Should this be inNodeKey or outNodeKey, does it even matter??
+		return dfs(inNodeKey, realStack)
+
 	# Do something for this ugly visualisation function please
 	def printDetails(self):
 		print("Printing Genome")
@@ -163,7 +201,7 @@ class Genome():
 		for inputNodeKey in range(config.noOfInputNodes):
 			print("\tINPUT NODE:", self.nodeGenes[inputNodeKey].printDetails())
 			counter += 1
-		
+
 		# Weird way to print hidden nodes TODO: please fix
 		try:
 			while True:
@@ -171,7 +209,7 @@ class Genome():
 				counter += 1
 		except KeyError:
 			pass
-		
+
 		print("Number of Connection Genes = ", len(self.connectionGenes))
 		for connectionKey in self.connectionGenes:
 			if self.connectionGenes[connectionKey].enabled:
