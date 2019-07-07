@@ -78,7 +78,7 @@ class Genome:
 		genome.fitness = None
 		genome.species = None
 		# Actual crossover
-		# TODO: Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
+		# TODO: (CLEAN) Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
 		connectionKey = 0
 		try:
 			while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
@@ -92,7 +92,7 @@ class Genome:
 		return genome
 
 	def mutate(self, connectionMutations, nodeMutations):
-		# TODO: Add different mutation controls such as: only one structural mutation or all
+		# TODO: (FEATURE) Add different mutation controls such as: only one structural mutation or all
 		if random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
 		if random.random() < config.mutateAddNode:
@@ -104,7 +104,6 @@ class Genome:
 			pass
 
 	def mutateAddConnection(self, connectionMutations):
-		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		inKeys = [k for k in self.nodeGenes.keys()]
 		outKeys = inKeys
 		random.shuffle(inKeys)
@@ -140,13 +139,16 @@ class Genome:
 		self.fullyConnected = True
 
 	def mutateAddNode(self, nodeMutations):
-		# TODO: Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
+		# TODO: (IMPORTANT) Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		connectionKey = None
 		keys = [k for k in self.connectionGenes]
 		random.shuffle(keys)
 		for key in keys:
 			if self.connectionGenes[key].enabled:
 				connectionKey = key
+		if connectionKey is None:
+			self.printDetails()
+			raise ValueError('Connection key is none node cannot be added')
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nextNodeKey += 1
 		connection0 = ConnectionGene(self.connectionGenes[connectionKey].inNodeKey, newNode.nodeNumber,
@@ -177,7 +179,7 @@ class Genome:
 	def mutateEnableConnection(self):
 		disabledConnectionKey = None
 		condition = True
-		# TODO: Randomize the connection chosen not just the first found
+		# TODO: (CLEAN) Randomize the connection chosen not just the first found
 		while condition:
 			disabledConnectionKey = random.choice([k for k in self.connectionGenes])
 			condition = self.connectionGenes[disabledConnectionKey].enabled
@@ -221,7 +223,7 @@ class Genome:
 			print("\tINPUT NODE:", self.nodeGenes[inputNodeKey].printDetails())
 			counter += 1
 
-		# Weird way to print hidden nodes TODO: please fix
+		# Weird way to print hidden nodes TODO: (CLEAN) please fix
 		try:
 			while True:
 				print("\tHIDDEN NODE:", self.nodeGenes[counter].printDetails())
@@ -233,4 +235,6 @@ class Genome:
 		for connectionKey in self.connectionGenes:
 			if self.connectionGenes[connectionKey].enabled:
 				print("\t", connectionKey, "CONNECTION:", self.connectionGenes[connectionKey].printDetails())
+			else:
+				print("\t", connectionKey, "DISABLED_CONNECTION:", self.connectionGenes[connectionKey].printDetails())
 		print("Genome printed")
