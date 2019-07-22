@@ -9,15 +9,15 @@ activationFunctions['sigmoid'] = sigmoid
 '''
 NEAT parameters
 '''
-populationSize = 100
-totalGenerations = 100
+populationSize = 50
+totalGenerations = 1000
 
 # Percentage of low scoring individuals to be deleted
 deletionFactor = 0.3
 
 # Mutation rates
-mutateAddConnection = 0.1
-mutateAddNode = 0.05
+mutateAddConnection = 0.01
+mutateAddNode = 0.01
 mutateChangeWeight = 0.7
 mutateEnableGene = 0.05
 

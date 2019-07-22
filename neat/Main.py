@@ -15,16 +15,16 @@ class NEAT:
 		# Core Evolutionary algorithm of neat
 		for i in range(config.totalGenerations):
 			print('#############################################')
-			print("Generation: {}".format(i))
-			print("\tGenomes: {}".format(len(self.population.genomes)))
+			# print("Generation: {}".format(i))
+			# print("\tGenomes: {}".format(len(self.population.genomes)))
 			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
 			maxFitness = 0  # max(*fitness)
 			index = None
-			for i in range(len(self.population.genomes)):
-				if fitness[i] > maxFitness:
-					maxFitness = fitness[i]
-					index = i
-			print('\tMax fitness: ', maxFitness, ', Of genome: ', index)
+			for j in range(len(self.population.genomes)):
+				if fitness[j] > maxFitness:
+					maxFitness = fitness[j]
+					index = j
+			print('Generation: ', i, 'Max fitness: ', maxFitness, ', Of genome: ', index)
 			self.population.genomes[index].printDetails()
 			speciesAsLists = speciate(self.population)
 			reproduce(self.population, speciesAsLists, fitness)

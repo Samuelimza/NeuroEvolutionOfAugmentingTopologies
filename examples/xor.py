@@ -17,8 +17,8 @@ def fitnessFunc(neuralNetworks):
         individualFitness = 4.0
         for i in range(len(inputs)):
             output = nn.activate(inputs[i])
-            individualFitness -= (output[0] - outputs[i]) ** 2
-        print('\t\t\tFitness: ', individualFitness)
+            individualFitness -= abs(output[0] - outputs[i])
+        # print('\t\t\tFitness: ', individualFitness)
         fitness.append(individualFitness)
     return fitness
 
@@ -27,4 +27,5 @@ neatHello = neat.Main.NEAT(fitnessFunc)
 genomesAfterTraining = neatHello.train()
 
 for genome in genomesAfterTraining:
-    genome.printDetails()
+    # genome.printDetails()
+    pass

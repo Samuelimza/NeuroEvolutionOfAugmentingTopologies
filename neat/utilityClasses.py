@@ -1,5 +1,5 @@
 class Mutation:
-	def __init__(self, inNodeKey = None, outNodeKey = None, innovationNumber = None):
+	def __init__(self, inNodeKey = None, outNodeKey = None, innovationNumber_s = None):
 		self.inNodeKey = inNodeKey
 		self.outNodeKey = outNodeKey
-		self.innovationNumber = innovationNumber
+		self.innovationNumber_s = innovationNumber_s

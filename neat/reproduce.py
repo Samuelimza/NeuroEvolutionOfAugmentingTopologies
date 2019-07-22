@@ -9,8 +9,8 @@ def reproduce(population, speciesAsLists, fitness):
 	totalFitness = 0
 
 	# Debug
-	for specie in speciesAsLists:
-		print('Species: {}, Length: {}'.format(specie, len(speciesAsLists[specie])))
+	# for specie in speciesAsLists:
+	#	print('Species: {}, Length: {}'.format(specie, len(speciesAsLists[specie])))
 	# Debug
 
 	counter = 0
