@@ -25,4 +25,5 @@ class NeuralNetwork():
                         self.genome.connectionGenes[key].inNodeKey,
                         trainingExample
                     )
+        thisValue += self.genome.nodeGenes[nodeKey].bias
         return config.activationFunctions[self.genome.nodeGenes[nodeKey].activationFunction](thisValue)

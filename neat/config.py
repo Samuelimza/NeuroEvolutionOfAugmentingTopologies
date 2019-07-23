@@ -13,17 +13,18 @@ populationSize = 50
 totalGenerations = 1000
 
 # Percentage of low scoring individuals to be deleted
-deletionFactor = 0.3
+deletionFactor = 0.8
 
 # Mutation rates
 mutateAddConnection = 0.005
 mutateAddNode = 0.005
-mutateChangeWeight = 0.7
+mutateChangeWeight = 0.8
 mutateEnableGene = 0.05
 
 # Structure of the starting neural network
 noOfInputNodes = 2
 noOfOutputNodes = 1
+mutateStructure = False
 
 # Activation function usage
 outputNodeActivation = 'sigmoid'

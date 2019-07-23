@@ -75,6 +75,7 @@ class Genome:
 
 		if innovationNumberIn is None:
 			innovationNumberIn = config.GlobalInnovationCounter
+			config.GlobalInnovationCounter += 1
 		self.addConnection(
 			self.connectionGenes[connectionKey].inNodeKey,
 			newNode.nodeNumber,
@@ -82,10 +83,10 @@ class Genome:
 			True,
 			innovationNumberIn
 		)
-		config.GlobalInnovationCounter += 1
 
 		if innovationNumberOut is None:
 			innovationNumberOut = config.GlobalInnovationCounter
+			config.GlobalInnovationCounter += 1
 		self.addConnection(
 			newNode.nodeNumber,
 			self.connectionGenes[connectionKey].outNodeKey,
@@ -93,7 +94,6 @@ class Genome:
 			True,
 			innovationNumberOut
 		)
-		config.GlobalInnovationCounter += 1
 
 		self.nextNodeKey += 1
 
@@ -104,21 +104,20 @@ class Genome:
 		genome = deepcopy(genome1)
 		genome.fitness = None
 		genome.species = None
-		for key in genome1.connectionGenes:
+		#for key in genome1.connectionGenes:
 			# Common genes are inherited from both parents
-			if key in genome2.connectionGenes:
-				genome.connectionGenes[key].weight = random.choice(
-					[genome1.connectionGenes[key].weight,
-					 genome2.connectionGenes[key].weight]
-				)
-				genome.connectionGenes[key].enabled = True
+		#	if key in genome2.connectionGenes:
+		#		genome.connectionGenes[key].weight = random.choice(
+		#			[genome1.connectionGenes[key].weight,
+		#			 genome2.connectionGenes[key].weight]
+		#		)
 		return genome
 
 	def mutate(self, connectionMutations, nodeMutations):
 		# TODO: (FEATURE) Add different mutation controls such as: only one structural mutation or all
-		if random.random() < config.mutateAddConnection and not self.fullyConnected:
+		if config.mutateStructure and random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
-		if random.random() < config.mutateAddNode:
+		if config.mutateStructure and random.random() < config.mutateAddNode:
 			self.mutateAddNode(nodeMutations)
 		if random.random() < config.mutateChangeWeight:
 			self.mutateChangeWeight()
@@ -195,9 +194,12 @@ class Genome:
 
 	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
-			if self.connectionGenes[connection].enabled and random.random() < 0.3:
-				nudge = (random.random() - 0.5) * 0.1
+			if self.connectionGenes[connection].enabled and random.random() < 1.0:
+				nudge = (random.random() - 0.5) * 0.5
 				self.connectionGenes[connection].weight += nudge
+		for node in self.nodeGenes:
+			if random.random() < 1.0:
+				self.nodeGenes[node].bias += (random.random() - 0.5) * 0.5
 
 	def mutateEnableConnection(self):
 		keys = self.connectionGenes

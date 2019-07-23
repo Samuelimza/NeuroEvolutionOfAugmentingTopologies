@@ -14,9 +14,6 @@ class NEAT:
 	def train(self):
 		# Core Evolutionary algorithm of neat
 		for i in range(config.totalGenerations):
-			# print('#############################################')
-			# print("Generation: {}".format(i))
-			# print("\tGenomes: {}".format(len(self.population.genomes)))
 			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
 			maxFitness = 0  # max(*fitness)
 			index = None
@@ -28,7 +25,6 @@ class NEAT:
 			# self.population.genomes[index].printDetails()
 			speciesAsLists = speciate(self.population)
 			reproduce(self.population, speciesAsLists, fitness)
-			# print('#############################################')
 
 		return self.population.genomes
 
