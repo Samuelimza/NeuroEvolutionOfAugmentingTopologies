@@ -99,25 +99,19 @@ class Genome:
 
 	@classmethod
 	def crossover(cls, genome1, genome2):
-		if genome1.fitness > genome2.fitness:
-			genome = deepcopy(genome1)
-		else:
-			genome = deepcopy(genome2)
+		if genome1.fitness < genome2.fitness:
+			genome1, genome2 = genome2, genome1
+		genome = deepcopy(genome1)
 		genome.fitness = None
 		genome.species = None
-		# Actual crossover
-		# TODO: (CLEAN) Please clean this!!!!. Also connectionKey is innovationNumber and innovationNumber is connectionKey
-		connectionKey = 0
-		try:
-			while genome1.connectionGenes[connectionKey].innovationNumber == genome2.connectionGenes[connectionKey].innovationNumber:
-				genome.connectionGenes[connectionKey].weight = random.choice(
-					[genome1.connectionGenes[connectionKey].weight,
-					 genome2.connectionGenes[connectionKey].weight]
+		for key in genome1.connectionGenes:
+			# Common genes are inherited from both parents
+			if key in genome2.connectionGenes:
+				genome.connectionGenes[key].weight = random.choice(
+					[genome1.connectionGenes[key].weight,
+					 genome2.connectionGenes[key].weight]
 				)
-				genome.connectionGenes[connectionKey].enabled = True
-				connectionKey += 1
-		except KeyError:
-			pass
+				genome.connectionGenes[key].enabled = True
 		return genome
 
 	def mutate(self, connectionMutations, nodeMutations):
@@ -173,7 +167,6 @@ class Genome:
 		self.fullyConnected = True
 
 	def mutateAddNode(self, nodeMutations):
-		# TODO: (IMPORTANT) Add innovation tracking capability for the current generation so as to limit globalInnovationCounter
 		connectionKey = None
 		keys = [k for k in self.connectionGenes]
 		random.shuffle(keys)
@@ -202,19 +195,18 @@ class Genome:
 
 	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
-			if self.connectionGenes[connection].enabled:
-				nudge = random.random() - 0.5
+			if self.connectionGenes[connection].enabled and random.random() < 0.3:
+				nudge = (random.random() - 0.5) * 0.1
 				self.connectionGenes[connection].weight += nudge
 
 	def mutateEnableConnection(self):
-		disabledConnectionKey = None
-		condition = True
-		# TODO: (IMPORTANT) Infinite Loop!!!!
-		while condition:
-			disabledConnectionKey = random.choice([k for k in self.connectionGenes])
-			condition = self.connectionGenes[disabledConnectionKey].enabled
-
-		self.connectionGenes[disabledConnectionKey].enabled = True
+		keys = self.connectionGenes
+		random.shuffle(keys)
+		for key in keys:
+			if not self.connectionGenes[key].enabled:
+				self.connectionGenes[key].enabled = True
+				return
+		return
 
 	def isCyclic(self, inNodeKey, outNodeKey):
 		this = deepcopy(self)

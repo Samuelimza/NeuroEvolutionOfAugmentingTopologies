@@ -16,8 +16,8 @@ totalGenerations = 1000
 deletionFactor = 0.3
 
 # Mutation rates
-mutateAddConnection = 0.01
-mutateAddNode = 0.01
+mutateAddConnection = 0.005
+mutateAddNode = 0.005
 mutateChangeWeight = 0.7
 mutateEnableGene = 0.05
 
