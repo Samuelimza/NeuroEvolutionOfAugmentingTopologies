@@ -19,4 +19,4 @@ class NodeGene:
 		self.bias = 0.0
 		
 	def printDetails(self):
-		return "({})".format(self.nodeNumber)
+		return "({}), Bias = {:.3f}".format(self.nodeNumber, self.bias)

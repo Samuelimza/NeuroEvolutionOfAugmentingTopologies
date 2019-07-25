@@ -22,7 +22,7 @@ class NEAT:
 					maxFitness = fitness[j]
 					index = j
 			print('Generation: ', i, 'Max fitness: ', maxFitness, ', Of genome: ', index)
-			# self.population.genomes[index].printDetails()
+			self.population.genomes[index].printDetails()
 			speciesAsLists = speciate(self.population)
 			reproduce(self.population, speciesAsLists, fitness)
 

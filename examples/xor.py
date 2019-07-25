@@ -24,7 +24,7 @@ def fitnessFunc(neuralNetworks):
     for nn in neuralNetworks:
         outputNN = nn.activate(inputs)
         individualFitness = 4.0 - np.sum(np.square(outputNN - outputTrain))
-        if individualFitness > 2.95:
+        if individualFitness > 3.99:
             print('High fitness network output: ', outputNN)
             print('Network: ')
             nn.genome.printDetails()
@@ -33,23 +33,23 @@ def fitnessFunc(neuralNetworks):
 
 
 neatHello = neat.Main.NEAT(fitnessFunc)
-for genome in neatHello.population.genomes:
-    genome.addNode(0, 2, 3)
-    genome.addNode(1, 4, 5)
-    genome.addConnection(1, 2, 1.0, True, 6)
-    genome.addConnection(0, 3, 1.0, True, 7)
-
-    #genome.connectionGenes[2].weight = 20.0
-    #genome.connectionGenes[6].weight = 20.0
-    #genome.connectionGenes[3].weight = 20.0
-    #genome.connectionGenes[5].weight = 20.0
-    #genome.connectionGenes[7].weight = -20.0
-    #genome.connectionGenes[4].weight = -20.0
-    #genome.nodeGenes[2].bias = -10
-    #genome.nodeGenes[-1].bias = -30
-    #genome.nodeGenes[3].bias = 30
-
-    genome.printDetails()
+# for genome in neatHello.population.genomes:
+#     genome.addNode(0, 2, 3)
+#     genome.addNode(1, 4, 5)
+#     genome.addConnection(1, 2, 1.0, True, 6)
+#     genome.addConnection(0, 3, 1.0, True, 7)
+#
+#     genome.connectionGenes[2].weight = 20.0
+#     genome.connectionGenes[6].weight = 20.0
+#     genome.connectionGenes[3].weight = 20.0
+#     genome.connectionGenes[5].weight = 20.0
+#     genome.connectionGenes[7].weight = -20.0
+#     genome.connectionGenes[4].weight = -20.0
+#     genome.nodeGenes[2].bias = -10
+#     genome.nodeGenes[-1].bias = -30
+#     genome.nodeGenes[3].bias = 30
+#
+#     genome.printDetails()
 
 genomesAfterTraining = neatHello.train()
 

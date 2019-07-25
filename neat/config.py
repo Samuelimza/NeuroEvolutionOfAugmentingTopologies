@@ -9,22 +9,22 @@ activationFunctions['sigmoid'] = sigmoid
 '''
 NEAT parameters
 '''
-populationSize = 50
-totalGenerations = 1000
+populationSize = 100
+totalGenerations = 500
 
 # Percentage of low scoring individuals to be deleted
 deletionFactor = 0.8
 
 # Mutation rates
-mutateAddConnection = 0.005
-mutateAddNode = 0.005
+mutateAddConnection = 0.01
+mutateAddNode = 0.01
 mutateChangeWeight = 0.8
 mutateEnableGene = 0.05
 
 # Structure of the starting neural network
 noOfInputNodes = 2
 noOfOutputNodes = 1
-mutateStructure = False
+mutateStructure = True
 
 # Activation function usage
 outputNodeActivation = 'sigmoid'
