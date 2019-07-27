@@ -7,9 +7,10 @@ from .genome import Genome
 
 
 class NEAT:
-	def __init__(self, function):
+	def __init__(self, function, random):
+		self.random = random
 		self.fitnessFunction = function
-		self.population = Population()
+		self.population = Population(self.random)
 
 	def train(self):
 		# Core Evolutionary algorithm of neat

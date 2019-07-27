@@ -1,12 +1,12 @@
 from copy import copy, deepcopy
-import random
 from . import config
 from .gene import NodeGene, ConnectionGene
 from .utilityClasses import Mutation
 
 
 class Genome:
-	def __init__(self):
+	def __init__(self, random):
+		self.random = random
 		self.nextNodeKey = None
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
@@ -47,7 +47,7 @@ class Genome:
 				connectionGenes[connectionKey] = ConnectionGene(
 					inputNodeKey,
 					outputNodeKey,
-					(random.random() * 2) - 1,  # Use random weight here
+					(self.random.random() * 2) - 1,  # Use random weight here
 					True,
 					connectionKey
 				)
@@ -107,7 +107,7 @@ class Genome:
 		#for key in genome1.connectionGenes:
 			# Common genes are inherited from both parents
 		#	if key in genome2.connectionGenes:
-		#		genome.connectionGenes[key].weight = random.choice(
+		#		genome.connectionGenes[key].weight = self.random.choice(
 		#			[genome1.connectionGenes[key].weight,
 		#			 genome2.connectionGenes[key].weight]
 		#		)
@@ -115,13 +115,13 @@ class Genome:
 
 	def mutate(self, connectionMutations, nodeMutations):
 		# TODO: (FEATURE) Add different mutation controls such as: only one structural mutation or all
-		if config.mutateStructure and random.random() < config.mutateAddConnection and not self.fullyConnected:
+		if config.mutateStructure and self.random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
-		if config.mutateStructure and random.random() < config.mutateAddNode:
+		if config.mutateStructure and self.random.random() < config.mutateAddNode:
 			self.mutateAddNode(nodeMutations)
-		if random.random() < config.mutateChangeWeight:
+		if self.random.random() < config.mutateChangeWeight:
 			self.mutateChangeWeight()
-		if random.random() < config.mutateEnableGene:
+		if self.random.random() < config.mutateEnableGene:
 			# self.mutateEnableConnection()
 			pass
 
@@ -130,8 +130,8 @@ class Genome:
 		outKeys = inKeys
 
 		# Shuffle to prevent only lower absolute value keys being preferred
-		random.shuffle(inKeys)
-		random.shuffle(outKeys)
+		self.random.shuffle(inKeys)
+		self.random.shuffle(outKeys)
 		for inNodeKey in inKeys:
 			for outNodeKey in outKeys:
 				# Conditions here make sure that forward propagating connections are evolved only
@@ -156,7 +156,7 @@ class Genome:
 					self.addConnection(
 						inNodeKey,
 						outNodeKey,
-						(random.random() * 2) - 1,
+						(self.random.random() * 2) - 1,
 						True,
 						innovationNumber
 					)
@@ -168,7 +168,7 @@ class Genome:
 	def mutateAddNode(self, nodeMutations):
 		connectionKey = None
 		keys = [k for k in self.connectionGenes]
-		random.shuffle(keys)
+		self.random.shuffle(keys)
 		for key in keys:
 			if self.connectionGenes[key].enabled:
 				connectionKey = key
@@ -194,16 +194,16 @@ class Genome:
 
 	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
-			if self.connectionGenes[connection].enabled and random.random() < 1.0:
-				nudge = (random.random() - 0.5) * 0.5
+			if self.connectionGenes[connection].enabled and self.random.random() < 1.0:
+				nudge = (self.random.random() - 0.5) * 0.5
 				self.connectionGenes[connection].weight += nudge
 		for node in self.nodeGenes:
-			if random.random() < 1.0:
-				self.nodeGenes[node].bias += (random.random() - 0.5) * 0.5
+			if self.random.random() < 1.0:
+				self.nodeGenes[node].bias += (self.random.random() - 0.5) * 0.5
 
 	def mutateEnableConnection(self):
 		keys = self.connectionGenes
-		random.shuffle(keys)
+		self.random.shuffle(keys)
 		for key in keys:
 			if not self.connectionGenes[key].enabled:
 				self.connectionGenes[key].enabled = True
