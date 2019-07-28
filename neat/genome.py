@@ -1,12 +1,12 @@
 from copy import copy, deepcopy
 from . import config
-from .gene import NodeGene, ConnectionGene
-from .utilityClasses import Mutation
+from .utilityClasses import NodeGene, ConnectionGene, Mutation
 
 
 class Genome:
-	def __init__(self, random):
-		self.random = random
+	random = config.random
+
+	def __init__(self):
 		self.nextNodeKey = None
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
@@ -47,7 +47,7 @@ class Genome:
 				connectionGenes[connectionKey] = ConnectionGene(
 					inputNodeKey,
 					outputNodeKey,
-					(self.random.random() * 2) - 1,  # Use random weight here
+					(Genome.random.random() * 2) - 1,  # Use random weight here
 					True,
 					connectionKey
 				)
@@ -107,7 +107,7 @@ class Genome:
 		#for key in genome1.connectionGenes:
 			# Common genes are inherited from both parents
 		#	if key in genome2.connectionGenes:
-		#		genome.connectionGenes[key].weight = self.random.choice(
+		#		genome.connectionGenes[key].weight = Genome.random.choice(
 		#			[genome1.connectionGenes[key].weight,
 		#			 genome2.connectionGenes[key].weight]
 		#		)
@@ -115,23 +115,23 @@ class Genome:
 
 	def mutate(self, connectionMutations, nodeMutations):
 		# TODO: (FEATURE) Add different mutation controls such as: only one structural mutation or all
-		if config.mutateStructure and self.random.random() < config.mutateAddConnection and not self.fullyConnected:
+		if config.mutateStructure and Genome.random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
-		if config.mutateStructure and self.random.random() < config.mutateAddNode:
+		if config.mutateStructure and Genome.random.random() < config.mutateAddNode:
 			self.mutateAddNode(nodeMutations)
-		if self.random.random() < config.mutateChangeWeight:
+		if Genome.random.random() < config.mutateChangeWeight:
 			self.mutateChangeWeight()
-		if self.random.random() < config.mutateEnableGene:
+		if Genome.random.random() < config.mutateEnableGene:
 			# self.mutateEnableConnection()
 			pass
 
 	def mutateAddConnection(self, connectionMutations):
 		inKeys = [k for k in self.nodeGenes.keys()]
-		outKeys = inKeys
+		outKeys = [k for k in self.nodeGenes.keys()]
 
 		# Shuffle to prevent only lower absolute value keys being preferred
-		self.random.shuffle(inKeys)
-		self.random.shuffle(outKeys)
+		Genome.random.shuffle(inKeys)
+		Genome.random.shuffle(outKeys)
 		for inNodeKey in inKeys:
 			for outNodeKey in outKeys:
 				# Conditions here make sure that forward propagating connections are evolved only
@@ -156,7 +156,7 @@ class Genome:
 					self.addConnection(
 						inNodeKey,
 						outNodeKey,
-						(self.random.random() * 2) - 1,
+						(Genome.random.random() * 2) - 1,
 						True,
 						innovationNumber
 					)
@@ -168,7 +168,7 @@ class Genome:
 	def mutateAddNode(self, nodeMutations):
 		connectionKey = None
 		keys = [k for k in self.connectionGenes]
-		self.random.shuffle(keys)
+		Genome.random.shuffle(keys)
 		for key in keys:
 			if self.connectionGenes[key].enabled:
 				connectionKey = key
@@ -187,23 +187,30 @@ class Genome:
 
 		# New mutation added in Node Mutations
 		if innovationNumberIn is None and innovationNumberOut is None:
-			nodeMutations.append(Mutation(inNodeKey = self.connectionGenes[connectionKey].inNodeKey, outNodeKey = self.connectionGenes[connectionKey].outNodeKey, innovationNumber_s = [config.GlobalInnovationCounter, config.GlobalInnovationCounter + 1]))
+			innovationNumberIn = config.GlobalInnovationCounter
+			config.GlobalInnovationCounter += 1
+			innovationNumberOut = config.GlobalInnovationCounter
+			config.GlobalInnovationCounter += 1
+			nodeMutations.append(Mutation(inNodeKey = self.connectionGenes[connectionKey].inNodeKey, outNodeKey = self.connectionGenes[connectionKey].outNodeKey, innovationNumber_s = [innovationNumberIn, innovationNumberOut]))
 
 		# Finally adding the node
 		self.addNode(connectionKey, innovationNumberIn = innovationNumberIn, innovationNumberOut = innovationNumberOut)
 
+		if self.fullyConnected:
+			self.fullyConnected = False
+
 	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
-			if self.connectionGenes[connection].enabled and self.random.random() < 1.0:
-				nudge = (self.random.random() - 0.5) * 0.5
+			if self.connectionGenes[connection].enabled and Genome.random.random() < 1.0:
+				nudge = (Genome.random.random() - 0.5) * 0.5
 				self.connectionGenes[connection].weight += nudge
 		for node in self.nodeGenes:
-			if self.random.random() < 1.0:
-				self.nodeGenes[node].bias += (self.random.random() - 0.5) * 0.5
+			if Genome.random.random() < 1.0:
+				self.nodeGenes[node].bias += (Genome.random.random() - 0.5) * 0.5
 
 	def mutateEnableConnection(self):
 		keys = self.connectionGenes
-		self.random.shuffle(keys)
+		Genome.random.shuffle(keys)
 		for key in keys:
 			if not self.connectionGenes[key].enabled:
 				self.connectionGenes[key].enabled = True
@@ -236,6 +243,21 @@ class Genome:
 		# Should this be inNodeKey or outNodeKey, does it even matter??
 		return dfs(inNodeKey, realStack)
 
+	@staticmethod
+	def genomeDistance(genome1, genome2):
+		averageWeightDifference = 0
+		noOfMatchingGenes = 0
+		if len(genome1.connectionGenes) < len(genome2.connectionGenes):
+			genome1, genome2 = genome2, genome1
+		for gene in genome1.connectionGenes:
+			if gene in genome2.connectionGenes:
+				averageWeightDifference += abs(genome1.connectionGenes[gene].weight - genome2.connectionGenes[gene].weight)
+				noOfMatchingGenes += 1
+		disjointAndExcessGenes = len(genome1.connectionGenes) + len(genome2.connectionGenes) - 2 * noOfMatchingGenes
+		averageWeightDifference = averageWeightDifference / noOfMatchingGenes
+		distance = config.disjointAndExcessGeneFactor * disjointAndExcessGenes + config.weightDifferenceFactor * averageWeightDifference
+		return distance
+
 	# TODO: (CLEAN) Do something for this ugly visualisation function please
 	def printDetails(self):
 		print("Printing Genome")
@@ -260,5 +282,5 @@ class Genome:
 			if self.connectionGenes[connectionKey].enabled:
 				print("\t", connectionKey, "CONNECTION:", self.connectionGenes[connectionKey].printDetails())
 			else:
-				print("\t", connectionKey, "DISABLED_CONNECTION:", self.connectionGenes[connectionKey].printDetails())
+				print("\t", connectionKey, "CONNECTION_DISABLED:", self.connectionGenes[connectionKey].printDetails())
 		print("Genome printed")

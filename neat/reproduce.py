@@ -1,4 +1,4 @@
-import math, random
+import math
 from .genome import Genome
 from . import config
 
@@ -49,4 +49,4 @@ def reproduce(population, speciesAsLists, fitness):
 
 
 def select(genomes):
-	return random.choice(genomes)
+	return config.random.choice(genomes)

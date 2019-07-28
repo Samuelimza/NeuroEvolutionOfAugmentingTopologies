@@ -7,7 +7,6 @@ sys.path.insert(0, here)
 
 import neat
 import numpy as np
-import random
 
 
 def fitnessFunc(neuralNetworks):
@@ -33,7 +32,7 @@ def fitnessFunc(neuralNetworks):
     return fitness
 
 
-neatHello = neat.Main.NEAT(fitnessFunc, random)
+neatHello = neat.Main.NEAT(fitnessFunc)
 # for genome in neatHello.population.genomes:
 #     genome.addNode(0, 2, 3)
 #     genome.addNode(1, 4, 5)
