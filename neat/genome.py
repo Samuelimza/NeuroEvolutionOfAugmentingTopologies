@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import deepcopy
 from . import config
 from .utilityClasses import NodeGene, ConnectionGene, Mutation
 
@@ -114,12 +114,11 @@ class Genome:
 		return genome
 
 	def mutate(self, connectionMutations, nodeMutations):
-		# TODO: (FEATURE) Add different mutation controls such as: only one structural mutation or all
 		if config.mutateStructure and Genome.random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
 		if config.mutateStructure and Genome.random.random() < config.mutateAddNode:
 			self.mutateAddNode(nodeMutations)
-		if Genome.random.random() < config.mutateChangeWeight:
+		if Genome.random.random() < config.mutateWeights:
 			self.mutateChangeWeight()
 		if Genome.random.random() < config.mutateEnableGene:
 			# self.mutateEnableConnection()
@@ -201,12 +200,17 @@ class Genome:
 
 	def mutateChangeWeight(self):
 		for connection in self.connectionGenes:
-			if self.connectionGenes[connection].enabled and Genome.random.random() < 1.0:
-				nudge = (Genome.random.random() - 0.5) * 0.5
-				self.connectionGenes[connection].weight += nudge
+			if self.connectionGenes[connection].enabled and Genome.random.random() < config.perturbationProbability:
+				perturbationFactor = 1 + (((Genome.random.random() * 2) - 1) / 10)
+				self.connectionGenes[connection].weight = self.connectionGenes[connection].weight * perturbationFactor
+			else:
+				self.connectionGenes[connection].weight = (Genome.random.random() * 2) - 1
 		for node in self.nodeGenes:
-			if Genome.random.random() < 1.0:
-				self.nodeGenes[node].bias += (Genome.random.random() - 0.5) * 0.5
+			if Genome.random.random() < config.perturbationProbability:
+				perturbationFactor = 1 + (((Genome.random.random() * 2) - 1) / 5)
+				self.nodeGenes[node].bias = self.nodeGenes[node].bias * perturbationFactor
+			else:
+				self.nodeGenes[node].bias = (Genome.random.random() * 2) - 1
 
 	def mutateEnableConnection(self):
 		keys = self.connectionGenes

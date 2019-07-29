@@ -24,7 +24,7 @@ def fitnessFunc(neuralNetworks):
     for nn in neuralNetworks:
         outputNN = nn.activate(inputs)
         individualFitness = 4.0 - np.sum(np.square(outputNN - outputTrain))
-        if individualFitness > 3.99:
+        if individualFitness > 3.9999:
             print('High fitness network output: ', outputNN)
             print('Network: ')
             nn.genome.printDetails()

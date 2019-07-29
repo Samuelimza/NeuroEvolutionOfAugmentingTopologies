@@ -1,47 +1,53 @@
 import math
+from copy import deepcopy
 from .genome import Genome
 from . import config
 
 
-def reproduce(population, speciesAsLists, fitness):
-	# Very confusing piece requires excessive commenting
+def reproduce(population, speciesAsLists, fitness, reporter):
 	sumPerSpecies = {}
 	totalFitness = 0
 
-	# Debug
-	# for specie in speciesAsLists:
-	#	print('Species: {}, Length: {}'.format(specie, len(speciesAsLists[specie])))
-	# Debug
-
+	# Adjust fitness with fitness sharing and calculate sumPerSpecies and totalFitness
 	counter = 0
 	for genome in population.genomes:
-		# Adjust fitness based fitness sharing
-		fitness[counter] = fitness[counter] / len(speciesAsLists[genome.species])
-		genome.fitness = fitness[counter]
-		# Calculate fitness sum of all individuals in a species
+		genome.fitness = fitness[counter] / len(speciesAsLists[genome.species])
 		if genome.species not in sumPerSpecies.keys():
 			sumPerSpecies[genome.species] = 0
-		sumPerSpecies[genome.species] += fitness[counter]
-		# Also simultaneously increase total fitness of all individuals combined
-		totalFitness += fitness[counter]
+		sumPerSpecies[genome.species] += genome.fitness
+		totalFitness += genome.fitness
 		counter += 1
-
-	# TODO: Add features such as elitism etc.
 
 	newGenomes = []
 	connectionMutations = []
 	nodeMutations = []
+
+	maxFitness = max(fitness) # max(population.genomes, key = lambda g : g.fitness)
+	eliteIndex = fitness.index(maxFitness)
+	elite = deepcopy(population.genomes[eliteIndex])
+	newGenomes.append(elite)
+
+	dictionary = {}
+	for specie in speciesAsLists:
+		maxFitnessOfSpecie = (max(speciesAsLists[specie], key=lambda g: g.fitness)).fitness
+		dictionary[specie] = maxFitnessOfSpecie
+	reporter.speciesWiseFitness.append(dictionary)
+
 	for specie in speciesAsLists.keys():
-		# Sort genomes of a specie based on their fitness
-		sorted(speciesAsLists[specie], key=lambda genomeE: genomeE.fitness, reverse=True)
-		# Calculate number of low fitness genomes to be deleted
+		offspringFromMating = math.ceil(config.populationSize * config.matingQuota * sumPerSpecies[specie] / totalFitness)
+		offspringFromMutation = math.ceil(config.populationSize * config.mutateQuota * sumPerSpecies[specie] / totalFitness)
+		speciesAsLists[specie] = sorted(speciesAsLists[specie], key=lambda genomeE: genomeE.fitness, reverse=True)
 		genomesDeleted = math.ceil((1 - config.deletionFactor) * len(speciesAsLists[specie]))
-		# Delete low fitness genomes
 		del speciesAsLists[specie][genomesDeleted:]
-		# Calculate number of offsprings for next generation for a specie
-		offspringCount = math.ceil(config.populationSize * sumPerSpecies[specie] / totalFitness)
-		# Actually create offsprings
-		for i in range(offspringCount):
+		if offspringFromMating + offspringFromMutation <= 0:
+			# TODO: (FEATURE) Report extinction
+			continue
+		for i in range(offspringFromMutation):
+			newGenome = deepcopy(select(speciesAsLists[specie]))
+			newGenome.species = None
+			newGenome.mutate(connectionMutations, nodeMutations)
+			newGenomes.append(newGenome)
+		for i in range(offspringFromMating):
 			newGenome = Genome.crossover(select(speciesAsLists[specie]), select(speciesAsLists[specie]))
 			newGenome.mutate(connectionMutations, nodeMutations)
 			newGenomes.append(newGenome)

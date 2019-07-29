@@ -28,3 +28,15 @@ class NodeGene:
 
 	def printDetails(self):
 		return "({}), Bias = {:.3f}".format(self.nodeNumber, self.bias)
+
+
+class Reporter:
+	def __init__(self, generations):
+		self.generations = generations
+		self.maxFitness = []
+		self.speciesWiseFitness = []
+
+	def showStatistics(self, plt):
+		gen = [i for i in range(self.generations)]
+		plt.plot(gen, self.maxFitness)
+		plt.show()
