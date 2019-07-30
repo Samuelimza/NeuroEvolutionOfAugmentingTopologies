@@ -33,3 +33,4 @@ mutateAddNode = 0.03
 mutateWeights = 0.8
 perturbationProbability = 0.9
 mutateEnableGene = 0.05
+stagnantAge = 15

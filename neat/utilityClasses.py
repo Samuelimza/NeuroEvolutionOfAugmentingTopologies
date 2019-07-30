@@ -31,12 +31,13 @@ class NodeGene:
 
 
 class Reporter:
-	def __init__(self, generations):
-		self.generations = generations
+	def __init__(self, totalGenerations):
+		self.generation = 0
 		self.maxFitness = []
 		self.speciesWiseFitness = []
+		self.totalGenerations = totalGenerations
 
 	def showStatistics(self, plt):
-		gen = [i for i in range(self.generations)]
+		gen = [i for i in range(self.totalGenerations)]
 		plt.plot(gen, self.maxFitness)
 		plt.show()
