@@ -23,7 +23,7 @@ or simply `$ ./runTests.sh`
 ## Usage
 NEAT requires only a `fitness_function(Neural_Networks)` that evaluates neural networks and returns the fitness in a list as shown below:
 
-```
+```python
 import neat
 
 def fitness_function(Neural_Networks):
