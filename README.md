@@ -15,9 +15,10 @@ $ cd NeuroEvolutionOfAugmentingTopologies
 $ echo "export PYTHONPATH="\${PYTHONPATH}:$(pwd)"" >> ~/.bashrc
 ```
 Run tests -
-```
-$ python -m unittest discover -s tests
-```
+
+`$ python -m unittest discover -s tests`
+
+or simply `$ ./runTests.sh`
 
 ## Usage
 NEAT requires only a `fitness_function(Neural_Networks)` that evaluates neural networks and returns the fitness in a list as shown below:
