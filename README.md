@@ -13,6 +13,7 @@ You can find the original paper [here](http://nn.cs.utexas.edu/downloads/papers/
 $ git clone https://github.com/Samuelimza/NeuroEvolutionOfAugmentingTopologies.git
 $ cd NeuroEvolutionOfAugmentingTopologies
 $ echo "export PYTHONPATH="\${PYTHONPATH}:$(pwd)"" >> ~/.bashrc
+$ source ~/.bashrc
 ```
 Run tests -
 
