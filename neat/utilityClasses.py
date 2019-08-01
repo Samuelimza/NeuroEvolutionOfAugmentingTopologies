@@ -34,10 +34,10 @@ class Reporter:
 	def __init__(self, totalGenerations):
 		self.generation = 0
 		self.maxFitness = []
-		self.speciesWiseFitness = []
+		self.speciesWiseFitness = []  # dictionary[generation][specie] == maxFitnessOfThatSpecieThatGeneration
 		self.totalGenerations = totalGenerations
 
 	def showStatistics(self, plt):
-		gen = [i for i in range(self.totalGenerations)]
+		gen = [i for i in range(self.generation)]
 		plt.plot(gen, self.maxFitness)
 		plt.show()

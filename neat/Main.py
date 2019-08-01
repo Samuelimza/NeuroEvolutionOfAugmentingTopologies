@@ -22,16 +22,13 @@ class NEAT:
 
 		# Core Evolutionary algorithm of neat
 		for i in range(config.totalGenerations):
+			reporter.generation = i
 			TIC = time.time()
 			tic = time.time()
 			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
 			fitnessTiming = time.time() - tic
-			maxFitness = 0  # max(*fitness)
-			index = None
-			for j in range(len(self.population.genomes)):
-				if fitness[j] > maxFitness:
-					maxFitness = fitness[j]
-					index = j
+			maxFitness = max(fitness)
+			index = fitness.index(maxFitness)
 			reporter.maxFitness.append(maxFitness)
 			print('Generation: ', i, 'Max fitness: ', maxFitness, ', Of genome: ', index)
 			self.population.genomes[index].printDetails()

@@ -5,18 +5,27 @@ from . import config
 
 
 def reproduce(population, speciesAsLists, fitness, reporter):
+	newGenomes = []
+
 	sumPerSpecies, totalFitness = adjustAndAssignFitness(population, speciesAsLists, fitness)
 	reportSpeciesFitness(speciesAsLists, reporter)
+	speciesSorted = sortSpecies(speciesAsLists)
+
+	if reporter.generation % 30 == 0:
+		for specie in reversed(speciesSorted):
+			if determineSpecieAge(specie, reporter) >= 20:
+				obliterate(specie, speciesAsLists)
+				break
+
+	obliterateStagnantSpecies(speciesAsLists, reporter)
+
+	elite = Genome.createDuplicateChild(speciesAsLists[speciesSorted[0]][0])
+	newGenomes.append(elite)
+
 	offSpringCount = determineOffSpringCount(speciesAsLists, sumPerSpecies, totalFitness, reporter)
 
-	newGenomes = []
 	connectionMutations = []
 	nodeMutations = []
-
-	maxFitness = max(fitness) # max(population.genomes, key = lambda g : g.fitness)
-	eliteIndex = fitness.index(maxFitness)
-	elite = deepcopy(population.genomes[eliteIndex])
-	newGenomes.append(elite)
 
 	for specie in speciesAsLists:
 		offspringFromMating = math.ceil(config.populationSize * config.matingQuota * sumPerSpecies[specie] / totalFitness)
@@ -45,6 +54,7 @@ def adjustAndAssignFitness(population, speciesAsLists, fitness):
 	# Adjust fitness with fitness sharing and calculate sumPerSpecies and totalFitness
 	counter = 0
 	for genome in population.genomes:
+		genome.originalFitness = fitness[counter]
 		genome.fitness = fitness[counter] / len(speciesAsLists[genome.species])
 		if genome.species not in sumPerSpecies.keys():
 			sumPerSpecies[genome.species] = 0
@@ -55,19 +65,46 @@ def adjustAndAssignFitness(population, speciesAsLists, fitness):
 
 
 def reportSpeciesFitness(speciesAsLists, reporter):
-	dictionary = {} # dictionary[generation][specie] == maxFitnessOfThatSpecieThatGeneration
+	dictionary = {}  # dictionary[generation][specie] == maxFitnessOfThatSpecieThatGeneration
 	for specie in speciesAsLists:
 		speciesAsLists[specie] = sorted(speciesAsLists[specie], key=lambda g: g.fitness, reverse=True)
-		dictionary[specie] = speciesAsLists[specie][0]  # (max(speciesAsLists[specie], key=lambda g: g.fitness)).fitness
+		dictionary[specie] = speciesAsLists[specie][0].originalFitness  # (max(speciesAsLists[specie], key=lambda g: g.fitness)).fitness
 	reporter.speciesWiseFitness.append(dictionary)
 
 
-def determineStagnantSpecies(speciesAsLists, sumPerSpecies, totalFitness, reporter):
-	stagnantSpecies = []
+def sortSpecies(speciesAsLists):
+	species = list(speciesAsLists.keys())
+	species = sorted(species, key=lambda s: speciesAsLists[s][0].originalFitness, reverse=True)
+	return species
+
+
+def determineSpecieAge(specie, reporter):
+	age = 0
+	for aSingleGenSpecieWiseFitness in reversed(reporter.speciesWiseFitness):
+		if specie in aSingleGenSpecieWiseFitness:
+			age += 1
+		else:
+			return age
+	return age
+
+
+def obliterate(specie, speciesAsLists):
+	# TODO: Report obliteration
+	for genome in speciesAsLists[specie]:
+		genome.fitness *= 0.01
+
+
+def obliterateStagnantSpecies(speciesAsLists, reporter):
 	for specie in speciesAsLists:
-		fitnessHistory = []
-		for i in range(reporter.generation, reporter.generation - config.stagnantAge, -1):
-			fitnessHistory.append(reporter.speciesWiseFitness[reporter.generations][specie])
+		stagnant = True
+		lastImproved = reporter.generation - config.stagnantAge
+		lastFitness = reporter.speciesWiseFitness[lastImproved][specie]
+		for i in range(lastImproved, reporter.generation + 1):
+			if reporter.speciesWiseFitness[i][specie] > lastFitness:
+				stagnant = False
+				break
+		if stagnant:
+			obliterate(specie, speciesAsLists)
 
 
 def determineOffSpringCount(speciesAsLists, sumPerSpecies, totalFitness, reporter):

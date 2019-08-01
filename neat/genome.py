@@ -12,7 +12,15 @@ class Genome:
 		self.connectionGenes = self.createConnectionGenes()
 		self.species = None
 		self.fitness = None
+		self.originalFitness = None
 		self.fullyConnected = True
+
+	def createDuplicateChild(self):
+		copied = deepcopy(self)
+		copied.fitness = None
+		copied.originalFitness = None
+		copied.species = None
+		return copied
 
 	def createNodeGenes(self):
 		'''
@@ -103,6 +111,7 @@ class Genome:
 			genome1, genome2 = genome2, genome1
 		genome = deepcopy(genome1)
 		genome.fitness = None
+		genome.originalFitness =  None
 		genome.species = None
 		#for key in genome1.connectionGenes:
 			# Common genes are inherited from both parents
@@ -244,7 +253,7 @@ class Genome:
 			stack.pop()
 			return False
 		realStack = []
-		# Should this be inNodeKey or outNodeKey, does it even matter??
+		# Should this be inNodeKey or outNodeKey,or does it even matter??
 		return dfs(inNodeKey, realStack)
 
 	@staticmethod
