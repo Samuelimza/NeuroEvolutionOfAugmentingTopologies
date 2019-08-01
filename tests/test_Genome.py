@@ -17,6 +17,10 @@ class TestGenome(unittest.TestCase):
 		self.assertEqual(genome.nextNodeKey, 2)
 
 	def test_GenomeDistance(self):
+		neat.config.noOfInputNodes = 2
+		neat.config.noOfOutputNodes = 1
+		neat.config.disjointAndExcessGeneFactor = 1.0
+		neat.config.weightDifferenceFactor = 1.0
 		random.seed(0)
 		neat.config.random = random
 		genome1 = neat.genome.Genome()
