@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/Samuelimza/NeuroEvolutionOfAugmentingTopologies.svg?branch=master)](https://travis-ci.org/Samuelimza/NeuroEvolutionOfAugmentingTopologies)
 # NeuroEvolutionOfAugmentingTopologies
 (Work in progress) NEAT (NeuroEvolution of Augmenting Topologies) is a method developed by Kenneth O. Stanley for evolving arbitrary neural networks.
 This project is a Python implementation of NEAT.
