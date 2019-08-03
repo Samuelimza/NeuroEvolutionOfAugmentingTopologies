@@ -17,7 +17,7 @@ noOfInputNodes = 2
 noOfOutputNodes = 1
 mutateStructure = True
 populationSize = 100
-totalGenerations = 2000
+totalGenerations = 500
 
 # Speciation parameters
 delta = 3.0
@@ -25,7 +25,7 @@ disjointAndExcessGeneFactor = 1
 weightDifferenceFactor = 0.4
 
 # Reproduction parameters
-deletionFactor = 0.8
+survivalThreshold = 0.2
 matingQuota = 0.6
 mutateQuota = 0.4
 mutateAddConnection = 0.07

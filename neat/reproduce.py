@@ -7,7 +7,7 @@ from . import config
 def reproduce(population, speciesAsLists, fitness, reporter):
 	newGenomes = []
 
-	sumPerSpecies, totalFitness = adjustAndAssignFitness(population, speciesAsLists, fitness)
+	adjustAndAssignFitness(population, speciesAsLists, fitness)
 	reportSpeciesFitness(speciesAsLists, reporter)
 	speciesSorted = sortSpecies(speciesAsLists)
 
@@ -17,51 +17,50 @@ def reproduce(population, speciesAsLists, fitness, reporter):
 				obliterate(specie, speciesAsLists)
 				break
 
-	obliterateStagnantSpecies(speciesAsLists, reporter)
-
-	elite = Genome.createDuplicateChild(speciesAsLists[speciesSorted[0]][0])
+	if reporter.generation > 15:
+		obliterateStagnantSpecies(speciesAsLists, reporter)
+	elite = speciesAsLists[speciesSorted[0]][0].createDuplicateChild()
 	newGenomes.append(elite)
-
-	offSpringCount = determineOffSpringCount(speciesAsLists, sumPerSpecies, totalFitness, reporter)
+	offSpringCount = determineOffSpringCount(speciesAsLists, reporter)
 
 	connectionMutations = []
 	nodeMutations = []
 
 	for specie in speciesAsLists:
-		offspringFromMating = math.ceil(config.populationSize * config.matingQuota * sumPerSpecies[specie] / totalFitness)
-		offspringFromMutation = math.ceil(config.populationSize * config.mutateQuota * sumPerSpecies[specie] / totalFitness)
-		# speciesAsLists[specie] = sorted(speciesAsLists[specie], key=lambda genomeE: genomeE.fitness, reverse=True)
-		genomesDeleted = math.ceil((1 - config.deletionFactor) * len(speciesAsLists[specie]))
-		del speciesAsLists[specie][genomesDeleted:]
-		if offspringFromMating + offspringFromMutation <= 0:
+		if offSpringCount[specie] <= 0:
 			# TODO: (FEATURE) Report extinction
 			continue
-		for i in range(offspringFromMutation):
-			newGenome = deepcopy(select(speciesAsLists[specie]))
-			newGenome.species = None
-			newGenome.mutate(connectionMutations, nodeMutations)
-			newGenomes.append(newGenome)
-		for i in range(offspringFromMating):
-			newGenome = Genome.crossover(select(speciesAsLists[specie]), select(speciesAsLists[specie]))
-			newGenome.mutate(connectionMutations, nodeMutations)
-			newGenomes.append(newGenome)
+		offspringFromMating = math.floor(config.matingQuota * offSpringCount[specie])
+		offspringFromMutation = math.ceil(config.mutateQuota * offSpringCount[specie])
+		genomesDeleted = math.ceil(config.survivalThreshold * len(speciesAsLists[specie]))
+		del speciesAsLists[specie][genomesDeleted:]
+		try:
+			for i in range(offspringFromMutation):
+				newGenome = select(speciesAsLists[specie]).createDuplicateChild()
+				newGenome.mutate(connectionMutations, nodeMutations)
+				newGenomes.append(newGenome)
+			for i in range(offspringFromMating):
+				newGenome = Genome.crossover(select(speciesAsLists[specie]), select(speciesAsLists[specie]))
+				newGenome.mutate(connectionMutations, nodeMutations)
+				newGenomes.append(newGenome)
+		except IndexError:
+			pass
+	stolenBabies = config.populationSize - len(newGenomes)
+	for i in range(stolenBabies):
+		#if i < math.floor(stolenBabies / 2):
+		newGenome = speciesAsLists[speciesSorted[0]][0].createDuplicateChild()
+		newGenome.mutate(connectionMutations, nodeMutations)
+		newGenomes.append(newGenome)
 	population.genomes = newGenomes
 
 
 def adjustAndAssignFitness(population, speciesAsLists, fitness):
-	sumPerSpecies = {}
-	totalFitness = 0
-	# Adjust fitness with fitness sharing and calculate sumPerSpecies and totalFitness
+	# Adjust fitness with fitness sharing
 	counter = 0
 	for genome in population.genomes:
 		genome.originalFitness = fitness[counter]
 		genome.fitness = fitness[counter] / len(speciesAsLists[genome.species])
-		if genome.species not in sumPerSpecies.keys():
-			sumPerSpecies[genome.species] = 0
-		sumPerSpecies[genome.species] += genome.fitness
-		totalFitness += genome.fitness
 		counter += 1
-	return sumPerSpecies, totalFitness
 
 
 def reportSpeciesFitness(speciesAsLists, reporter):
@@ -95,22 +94,32 @@ def obliterate(specie, speciesAsLists):
 
 
 def obliterateStagnantSpecies(speciesAsLists, reporter):
-	for specie in speciesAsLists:
-		stagnant = True
-		lastImproved = reporter.generation - config.stagnantAge
-		lastFitness = reporter.speciesWiseFitness[lastImproved][specie]
-		for i in range(lastImproved, reporter.generation + 1):
-			if reporter.speciesWiseFitness[i][specie] > lastFitness:
-				stagnant = False
-				break
-		if stagnant:
-			obliterate(specie, speciesAsLists)
-
-
-def determineOffSpringCount(speciesAsLists, sumPerSpecies, totalFitness, reporter):
-	offSpringCount = {}
-	for specie in speciesAsLists:
+	try:
+		for specie in speciesAsLists:
+			stagnant = True
+			lastImproved = reporter.generation - config.stagnantAge
+			if specie not in reporter.speciesWiseFitness[lastImproved]:
+				continue
+			lastFitness = reporter.speciesWiseFitness[lastImproved][specie]
+			for i in range(lastImproved, reporter.generation + 1):
+				if reporter.speciesWiseFitness[i][specie] > lastFitness:
+					stagnant = False
+					break
+			if stagnant:
+				obliterate(specie, speciesAsLists)
+	except KeyError:
 		pass
+
+
+def determineOffSpringCount(speciesAsLists, reporter):
+	offSpringCount = {}
+	sumPerSpecies = {}
+	totalFitness = 0
+	for specie in speciesAsLists:
+		sumPerSpecies[specie] = sum(genome.fitness for genome in speciesAsLists[specie])
+		totalFitness += sumPerSpecies[specie]
+	for specie in speciesAsLists:
+		offSpringCount[specie] = math.floor(config.populationSize * sumPerSpecies[specie] / totalFitness)
 	return offSpringCount
 
 

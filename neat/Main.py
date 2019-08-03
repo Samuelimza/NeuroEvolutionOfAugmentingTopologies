@@ -9,9 +9,6 @@ import matplotlib.pyplot as plt
 import time
 
 
-# TODO: Measure timing
-# TODO: Implement statistics object
-# TODO: Implement 15 generation stall forced extinction
 class NEAT:
 	def __init__(self, function):
 		self.fitnessFunction = function

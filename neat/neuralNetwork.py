@@ -14,8 +14,18 @@ class NeuralNetwork():
             output.append(outputs)
         return output
 
-    # Recursive function to evaluate node values in the graph network
+    #
     def value(self, nodeKey, trainingExample):
+        """
+        Recursive function to evaluate node values in the graph network
+
+        Parameters:
+            nodeKey: The node key of the node to be evaluated (To evaluate output of network, node key is an output node key)
+            trainingExample: A single set of inputs for the input nodes
+        Returns:
+            value of the output node evaluated at the input
+        :return:
+        """
         if self.genome.nodeGenes[nodeKey].nodeType is 'INPUT':
             return trainingExample[self.genome.nodeGenes[nodeKey].nodeNumber]
         thisValue = 0

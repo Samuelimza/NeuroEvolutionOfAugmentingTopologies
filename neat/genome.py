@@ -16,6 +16,9 @@ class Genome:
 		self.fullyConnected = True
 
 	def createDuplicateChild(self):
+		"""
+		Takes a genome and returns a copy with fitness and species cleared
+		"""
 		copied = deepcopy(self)
 		copied.fitness = None
 		copied.originalFitness = None
@@ -23,11 +26,11 @@ class Genome:
 		return copied
 
 	def createNodeGenes(self):
-		'''
+		"""
 		Creates a default node structure with configured Input and Output nodes.
 		By convention Output nodes have negative keys starting from -1 and Input nodes
 		have positive keys starting from 0.
-		'''
+		"""
 		nodeGenes = {}
 		for nodeKey in range(config.noOfOutputNodes):
 			nodeGenes[-(nodeKey + 1)] = NodeGene(
@@ -42,12 +45,12 @@ class Genome:
 		return nodeGenes
 
 	def createConnectionGenes(self):
-		'''
+		"""
 		Creates connections connecting the default input and output nodes with connection
 		key as the innovation number. Each connection supplying a particular node has it's
 		key stored in that node so the nodes supplying that particular node can be traced and
 		their value can be calculatd recursively by the neural network.
-		'''
+		"""
 		connectionGenes = {}
 		connectionKey = 0
 		for outputNodeKey in range(-1, -(config.noOfOutputNodes + 1), -1):
@@ -67,6 +70,16 @@ class Genome:
 		return connectionGenes
 
 	def addConnection(self, inNodeKey, outNodeKey, weight, enabled, innovationNumber):
+		"""
+		Adds a connection in the genome with params
+
+		Parameters:
+			inNodeKey: Node key of the originating node of the connection
+			outNodeKey: Node key of the terminating node of the connection
+			weight: The weight of the connection being added
+			enabled: Bool value if the connection is enabled
+			innovationNumber: Unique innovation ID of the connection
+		"""
 		self.connectionGenes[innovationNumber] = ConnectionGene(
 			inNodeKey,
 			outNodeKey,
@@ -77,6 +90,14 @@ class Genome:
 		self.nodeGenes[outNodeKey].supplyingConnectionGenes.append(innovationNumber)
 
 	def addNode(self, connectionKey, innovationNumberIn = None, innovationNumberOut = None):
+		"""
+		Adds a connection in the genome with params
+
+		Parameters:
+			innovationNumberIn: Innovation ID for the incoming connection from the node
+			innovationNumberOut: Innovation ID for the outgoing connection from the node
+			connectionKey: Connection Key of an existing connection in the genome to split and add node in place of.
+		"""
 		self.connectionGenes[connectionKey].enabled = False
 		newNode = NodeGene(self.nextNodeKey, 'HIDDEN', config.hiddenNodeActivation)
 		self.nodeGenes[newNode.nodeNumber] = newNode
@@ -105,14 +126,20 @@ class Genome:
 
 		self.nextNodeKey += 1
 
-	@classmethod
-	def crossover(cls, genome1, genome2):
+	@staticmethod
+	def crossover(genome1, genome2):
+		"""
+		Returns a child resulted from the crossover of genomes passed
+
+		Parameters:
+			genome1: First parent
+			genome2: Second parent
+		 Returns:
+		 	genome: Child
+		"""
 		if genome1.fitness < genome2.fitness:
 			genome1, genome2 = genome2, genome1
-		genome = deepcopy(genome1)
-		genome.fitness = None
-		genome.originalFitness =  None
-		genome.species = None
+		genome = genome1.createDuplicateChild()
 		#for key in genome1.connectionGenes:
 			# Common genes are inherited from both parents
 		#	if key in genome2.connectionGenes:
@@ -123,6 +150,13 @@ class Genome:
 		return genome
 
 	def mutate(self, connectionMutations, nodeMutations):
+		"""
+		Handles all mutations of a genome.
+
+		Parameters:
+			connectionMutations: List of connection mutations that have happened in the current generation
+			nodeMutations: List of the node mutations that have happened in the current generation
+		"""
 		if config.mutateStructure and Genome.random.random() < config.mutateAddConnection and not self.fullyConnected:
 			self.mutateAddConnection(connectionMutations)
 		if config.mutateStructure and Genome.random.random() < config.mutateAddNode:
@@ -134,6 +168,12 @@ class Genome:
 			pass
 
 	def mutateAddConnection(self, connectionMutations):
+		"""
+		Adds a connection as a mutation in the genome
+
+		Parameters:
+			connectionMutations: The list of coonnection mutations occurred in the current generation
+		"""
 		inKeys = [k for k in self.nodeGenes.keys()]
 		outKeys = [k for k in self.nodeGenes.keys()]
 
@@ -174,6 +214,12 @@ class Genome:
 		self.fullyConnected = True
 
 	def mutateAddNode(self, nodeMutations):
+		"""
+		Adds a node as a mutation in the genome
+
+		Parameters:
+			nodeMutations: Node mutations occurred in the current generation
+		"""
 		connectionKey = None
 		keys = [k for k in self.connectionGenes]
 		Genome.random.shuffle(keys)
@@ -208,6 +254,9 @@ class Genome:
 			self.fullyConnected = False
 
 	def mutateChangeWeight(self):
+		"""
+		Changes the connections' weights as a mutation
+		"""
 		for connection in self.connectionGenes:
 			if self.connectionGenes[connection].enabled and Genome.random.random() < config.perturbationProbability:
 				perturbationFactor = 1 + (((Genome.random.random() * 2) - 1) / 10)
@@ -222,6 +271,9 @@ class Genome:
 				self.nodeGenes[node].bias = (Genome.random.random() * 2) - 1
 
 	def mutateEnableConnection(self):
+		"""
+		Enables a disabled connection as a mutation
+		"""
 		keys = self.connectionGenes
 		Genome.random.shuffle(keys)
 		for key in keys:
@@ -231,6 +283,15 @@ class Genome:
 		return
 
 	def isCyclic(self, inNodeKey, outNodeKey):
+		"""
+		Checks whether self would be cyclicly connected if inNodeKey and outNodeKey were to be connected by a connection.
+
+		Parameters:
+			inNodeKey: Input node for the connection to be added.
+			outNodeKey: Output node for the connection to be added.
+		Returns:
+			bool: whether the connection makes the genome cyclic
+		"""
 		this = deepcopy(self)
 		this.connectionGenes[config.GlobalInnovationCounter] = ConnectionGene(
 			inNodeKey,
@@ -258,6 +319,15 @@ class Genome:
 
 	@staticmethod
 	def genomeDistance(genome1, genome2):
+		"""
+		Returns the species distance between two genomes according to some speciation parameters.
+
+		Parameters:
+			genome1: First genome of the two.
+			genome2: Second genome of the two.
+		Returns:
+			distance: The distance
+		"""
 		averageWeightDifference = 0
 		noOfMatchingGenes = 0
 		if len(genome1.connectionGenes) < len(genome2.connectionGenes):

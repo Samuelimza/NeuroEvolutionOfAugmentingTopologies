@@ -1,4 +1,7 @@
 class Mutation:
+	"""
+	Class Mutation: Used to describe node and connection mutations that are tracked duting reproduction phase.
+	"""
 	def __init__(self, inNodeKey = None, outNodeKey = None, innovationNumber_s = None):
 		self.inNodeKey = inNodeKey
 		self.outNodeKey = outNodeKey
@@ -6,6 +9,9 @@ class Mutation:
 
 
 class ConnectionGene:
+	"""
+	Class ConnectionGene: Data Struct for a single connection gene.
+	"""
 	def __init__(self, inNodeKey, outNodeKey, weight, enabled, innovationNumber):
 		self.inNodeKey = inNodeKey
 		self.outNodeKey = outNodeKey
@@ -18,6 +24,9 @@ class ConnectionGene:
 
 
 class NodeGene:
+	"""
+	Class NodeGene: Data Struct for a single node gene.
+	"""
 	def __init__(self, nodeNumber, nodeType, activationFunction):
 		self.nodeNumber = nodeNumber
 		self.nodeType = nodeType
@@ -31,6 +40,9 @@ class NodeGene:
 
 
 class Reporter:
+	"""
+	Class Reporter: Reporter for various statistics throughout the evolution of the population
+	"""
 	def __init__(self, totalGenerations):
 		self.generation = 0
 		self.maxFitness = []
@@ -38,6 +50,6 @@ class Reporter:
 		self.totalGenerations = totalGenerations
 
 	def showStatistics(self, plt):
-		gen = [i for i in range(self.generation)]
+		gen = [i for i in range(self.generation + 1)]
 		plt.plot(gen, self.maxFitness)
 		plt.show()
