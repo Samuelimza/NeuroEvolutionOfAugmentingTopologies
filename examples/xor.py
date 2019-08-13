@@ -10,26 +10,24 @@ import numpy as np
 
 
 def fitnessFunc(neuralNetworks):
-    fitness = []
-    inputs = np.array([[0.0, 0.0],
-                       [0.0, 1.0],
-                       [1.0, 0.0],
-                       [1.0, 1.0]]
-                      )
-    outputTrain = np.array([[0.0],
-                            [1.0],
-                            [1.0],
-                            [0.0]]
-                           )
-    for nn in neuralNetworks:
-        outputNN = nn.activate(inputs)
-        individualFitness = 4.0 - np.sum(np.square(outputNN - outputTrain))
-        if individualFitness > 3.9999:
-            print('High fitness network output: ', outputNN)
-            print('Network: ')
-            nn.genome.printDetails()
-        fitness.append(individualFitness)
-    return fitness
+	fitness = []
+	inputs = np.array([[0.0, 0.0],
+					   [0.0, 1.0],
+					   [1.0, 0.0],
+					   [1.0, 1.0]]
+					  )
+	outputTrain = np.array([[0.0],
+							[1.0],
+							[1.0],
+							[0.0]]
+						   )
+
+	for nn in neuralNetworks:
+		outputNN = nn.activate(inputs)
+		individualFitness = 4.0 - np.sum(np.square(outputNN - outputTrain))
+		fitness.append(individualFitness)
+		nn.genome.output = outputNN
+	return fitness
 
 
 neatHello = neat.Main.NEAT(fitnessFunc)
@@ -54,5 +52,5 @@ neatHello = neat.Main.NEAT(fitnessFunc)
 genomesAfterTraining = neatHello.train()
 
 for genome in genomesAfterTraining:
-    # genome.printDetails()
-    pass
+	# genome.printDetails()
+	pass

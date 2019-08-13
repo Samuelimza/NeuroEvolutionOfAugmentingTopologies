@@ -24,7 +24,6 @@ class NeuralNetwork():
             trainingExample: A single set of inputs for the input nodes
         Returns:
             value of the output node evaluated at the input
-        :return:
         """
         if self.genome.nodeGenes[nodeKey].nodeType is 'INPUT':
             return trainingExample[self.genome.nodeGenes[nodeKey].nodeNumber]

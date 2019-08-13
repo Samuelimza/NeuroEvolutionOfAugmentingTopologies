@@ -21,22 +21,22 @@ class NEAT:
 		for i in range(config.totalGenerations):
 			reporter.generation = i
 			TIC = time.time()
+
 			tic = time.time()
 			fitness = self.fitnessFunction(self.convertToNeuralNetwork(self.population))
 			fitnessTiming = time.time() - tic
-			maxFitness = max(fitness)
-			index = fitness.index(maxFitness)
-			reporter.maxFitness.append(maxFitness)
-			print('Generation: ', i, 'Max fitness: ', maxFitness, ', Of genome: ', index)
-			self.population.genomes[index].printDetails()
+
 			tic = time.time()
 			speciesAsLists = speciate(self.population)
 			speciationTiming = time.time() - tic
+
 			tic = time.time()
 			reproduce(self.population, speciesAsLists, fitness, reporter)
 			reproductionTiming = time.time() - tic
+
 			totalTime = time.time() - TIC
-			print("Total Generation Timing {0:.2f}: {1:.1f}% fitnessEvaluation, {2:.1f}% speciation, {3:.1f}% reproduction, {4:.1f}% wasted".format(totalTime, fitnessTiming / totalTime, speciationTiming / totalTime, reproductionTiming / totalTime, totalTime - (fitnessTiming + speciationTiming + reproductionTiming)))
+			reporter.timing = [fitnessTiming, speciationTiming, reproductionTiming, totalTime]
+			reporter.showGeneration(speciesAsLists)
 
 		reporter.showStatistics(plt)
 		return self.population.genomes

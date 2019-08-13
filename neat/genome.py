@@ -10,10 +10,12 @@ class Genome:
 		self.nextNodeKey = None
 		self.nodeGenes = self.createNodeGenes()
 		self.connectionGenes = self.createConnectionGenes()
+		self.originalCounter = None
 		self.species = None
 		self.fitness = None
 		self.originalFitness = None
 		self.fullyConnected = True
+		self.output = None
 
 	def createDuplicateChild(self):
 		"""
@@ -157,13 +159,18 @@ class Genome:
 			connectionMutations: List of connection mutations that have happened in the current generation
 			nodeMutations: List of the node mutations that have happened in the current generation
 		"""
-		if config.mutateStructure and Genome.random.random() < config.mutateAddConnection and not self.fullyConnected:
-			self.mutateAddConnection(connectionMutations)
-		if config.mutateStructure and Genome.random.random() < config.mutateAddNode:
-			self.mutateAddNode(nodeMutations)
-		if Genome.random.random() < config.mutateWeights:
+		structureMutated = False
+		if config.mutateStructure:
+			if Genome.random.random() < config.mutateStructureProb:
+				if Genome.random.random() < config.mutateAddConnection and not self.fullyConnected:
+					self.mutateAddConnection(connectionMutations)
+					structureMutated = True
+				if config.mutateStructure and Genome.random.random() < config.mutateAddNode:
+					self.mutateAddNode(nodeMutations)
+					structureMutated = True
+		if not structureMutated and Genome.random.random() < config.mutateWeights:
 			self.mutateChangeWeight()
-		if Genome.random.random() < config.mutateEnableGene:
+		if not structureMutated and Genome.random.random() < config.mutateEnableGene:
 			# self.mutateEnableConnection()
 			pass
 

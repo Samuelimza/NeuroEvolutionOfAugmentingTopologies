@@ -16,8 +16,8 @@ hiddenNodeActivation = 'sigmoid'
 noOfInputNodes = 2
 noOfOutputNodes = 1
 mutateStructure = True
-populationSize = 100
-totalGenerations = 500
+populationSize = 150
+totalGenerations = 300
 
 # Speciation parameters
 delta = 3.0
@@ -28,6 +28,7 @@ weightDifferenceFactor = 0.4
 survivalThreshold = 0.2
 matingQuota = 0.6
 mutateQuota = 0.4
+mutateStructureProb = 0.5
 mutateAddConnection = 0.07
 mutateAddNode = 0.03
 mutateWeights = 0.8
