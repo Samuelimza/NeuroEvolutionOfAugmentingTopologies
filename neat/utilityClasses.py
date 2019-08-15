@@ -59,14 +59,15 @@ class Reporter:
 		print("####################################################################################################################")
 		for specie in self.speciesSorted:
 			print("Specie = ", specie)
-			count = 0
 			for genome in speciesAsLists[specie]:
 				print("\tGenome: {:3d}, nodes: {:3d}, connections: {:3d}".format(genome.originalCounter, len(genome.nodeGenes), len(genome.connectionGenes)), end=" ")
-				count += 1
-				print(" ,fitness: {:.2f}, output: [ ".format(genome.originalFitness), end="")
-				for x in range(len(genome.output)):
-					print("{:.2f} ".format(genome.output[x][0]), end="")
-				print("]")
+				if genome.output is not None:
+					print(" ,fitness: {:.2f}, output: [ ".format(genome.originalFitness), end="")
+					for x in range(len(genome.output)):
+						print("{:.2f} ".format(genome.output[x][0]), end="")
+					print("]")
+				else:
+					print(" ,fitness: {:.2f}".format(genome.originalFitness))
 		if len(self.obliteratedSpecies) > 0:
 			print("Obliterated species:", end=" ")
 			for specie in self.obliteratedSpecies:
