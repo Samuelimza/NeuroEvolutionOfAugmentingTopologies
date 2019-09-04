@@ -79,7 +79,8 @@ class Reporter:
 				print(specie, end=" ")
 			print(" ")
 		print('Generation: ', self.generation, 'Max fitness: ', speciesAsLists[self.speciesSorted[0]][0].originalFitness, ', Of genome: ', speciesAsLists[self.speciesSorted[0]][0].originalCounter)
-		print("Stolen Babies: ", self.stolenBabies)
+		if self.stolenBabies > 0:
+			print("Stolen Babies: ", self.stolenBabies)
 		print("Total Generation Timing {0:.2f}: {1:.1f}% fitnessEvaluation, {2:.1f}% speciation, {3:.1f}% reproduction, {4:.1f}% wasted".format(self.timing[3], self.timing[0] / self.timing[3], self.timing[1] / self.timing[3], self.timing[2] / self.timing[3], self.timing[3] - (self.timing[0] + self.timing[1] + self.timing[2])))
 		print("####################################################################################################################")
 		print(" ")
