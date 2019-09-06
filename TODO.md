@@ -4,4 +4,5 @@
 * Rework neural network generation by layer assignment strategy.
 * Examples comparision with reinforcement learning environments such as gym and OpenAI universe.
 * Unittest coverage.
+* Adapt class structures from neat in mlpack.
 * Apply search policies.
